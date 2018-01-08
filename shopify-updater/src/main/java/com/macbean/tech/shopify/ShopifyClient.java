@@ -17,17 +17,16 @@ import java.util.List;
 import java.util.Map;
 
 import static com.macbean.tech.shopify.ShopifyConstants.*;
-import static com.macbean.tech.shopify.ShopifyHttpClient.getJson;
-import static com.macbean.tech.shopify.ShopifyHttpClient.sendJson;
 
 public class ShopifyClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShopifyClient.class);
 
+    private ShopifyHttpClient shopifyHttpClient = new ShopifyHttpClient(UK_INSTANCE);
+
     public Products getAllProducts() throws IOException {
         final ObjectMapper jsonMapper = new ObjectMapper();
-        final InputStream jsonInputstream = getJson(ShopifyConstants.GET_PRODUCTS_URL);
-        //final JavaType returnType = jsonMapper.getTypeFactory().constructCollectionType(List.class, Product.class);
+        final InputStream jsonInputstream = shopifyHttpClient.getProductsJson();
         Products products = jsonMapper.readValue(jsonInputstream, Products.class);
         LOGGER.debug("***** All Products *****");
         products.getProducts().stream().map(product -> product.getTitle()).sorted().forEach(LOGGER::debug);
@@ -74,7 +73,7 @@ public class ShopifyClient {
             final ObjectMapper jsonMapper = new ObjectMapper();
             final String payload = jsonMapper.writeValueAsString(variantWrapper);
             LOGGER.debug("updateIncorrectVariants JSON payload: " + payload);
-            sendJson(PUT_VARIANT_URL(variant.getId()), PUT_REQUEST_METHOD, payload);
+            shopifyHttpClient.putVariant(variant.getId(), PUT_REQUEST_METHOD, payload);
         }
 
     }

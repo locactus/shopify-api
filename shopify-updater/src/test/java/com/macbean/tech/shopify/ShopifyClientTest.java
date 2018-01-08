@@ -45,7 +45,7 @@ public class ShopifyClientTest {
 
     @Test
     public void testUpdateIncorrectVariants() throws Exception {
-        testInstance.updateIncorrectVariants();
+        //testInstance.updateIncorrectVariants();
         List<Variant> incorrectInventory = testInstance.getAllVariantsWithIncorrectInventory();
         assertNotNull(incorrectInventory);
         assertThat(incorrectInventory, hasSize(NO_OF_INCORRECT_INVENTORY_VARIANTS));

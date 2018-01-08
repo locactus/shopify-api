@@ -18,16 +18,13 @@ public class ShopifyConstants {
     static final String INVENTORY_NON_SHOPIFY = null;
 
     static final String HTTPS_PREFIX = "https://";
-    static final String SHOPIFY_USERNAME = "";
-    static final String SHOPIFY_PASSWORD = "";
-    static final String API_PAIR = SHOPIFY_USERNAME+";"+SHOPIFY_PASSWORD+"@";
-    static final String SHOPIFY_INSTANCE = "squashuk.myshopify.com";
+    static final String JSON_SUFFIX = ".json";
+    static final String GET_PRODUCTS = "/admin/products" + JSON_SUFFIX;
+    static final String PUT_VARIANT = "/admin/variants/";
 
-    static final String BASE_URL = HTTPS_PREFIX + API_PAIR + SHOPIFY_INSTANCE;
-
-    static final String GET_PRODUCTS = "/admin/products.json";
-    static final String PUT_VARIANT(Long variantId) { return "/admin/variants/" + variantId + ".json"; }
-
-    static final String GET_PRODUCTS_URL = BASE_URL + GET_PRODUCTS;
-    static final String PUT_VARIANT_URL(Long variantId) { return BASE_URL + PUT_VARIANT(variantId); }
+    static final ShopifyInstance UK_INSTANCE = new ShopifyInstance(
+            "squashuk.myshopify.com",
+            "ec985b46ffe3b3d340719bfd0e415e31",
+            "1b4cabb72773b3299104912ed5b21954"
+    );
 }

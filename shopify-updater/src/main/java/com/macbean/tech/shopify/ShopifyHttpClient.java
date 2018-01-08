@@ -17,28 +17,37 @@ public class ShopifyHttpClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShopifyHttpClient.class);
 
-    private ShopifyHttpClient() {}
+    private ShopifyInstance shopifyInstance;
 
-    static {
+    public ShopifyHttpClient(ShopifyInstance shopifyInstance) {
+        this.shopifyInstance = shopifyInstance;
         Authenticator.setDefault (new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication (SHOPIFY_USERNAME, SHOPIFY_PASSWORD.toCharArray());
+                return new PasswordAuthentication (shopifyInstance.getUserName(), shopifyInstance.getPassword().toCharArray());
             }
         });
     }
 
-    static InputStream get(String url, String mimeType) throws IOException {
+    private InputStream get(String url, String mimeType) throws IOException {
         final HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
         connection.setRequestMethod(GET_REQUEST_METHOD);
         connection.setRequestProperty(GET_REQUEST_PROPERTY, mimeType);
         return connection.getInputStream();
     }
 
-    static InputStream getJson(String url) throws IOException {
+    private InputStream getJson(String url) throws IOException {
         return get(url, JSON_CONTENT_TYPE);
     }
 
-    static void sendJson(String url, String requestMethod, String payload) throws IOException {
+    public InputStream getProductsJson() throws IOException {
+        return get(shopifyInstance.getGetProductsUrl(), JSON_CONTENT_TYPE);
+    }
+
+    public void putVariant(Long variantId, String requestMethod, String payload) throws IOException {
+        putJson(shopifyInstance.getPutVariantUrl(variantId), requestMethod, payload);
+    }
+
+    private void putJson(String url, String requestMethod, String payload) throws IOException {
         final HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
         connection.setRequestMethod(requestMethod);
         connection.setDoInput(true);
