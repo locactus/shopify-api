@@ -6,6 +6,8 @@ import com.macbean.tech.shopify.model.Products;
 import com.macbean.tech.shopify.model.Variant;
 import com.macbean.tech.shopify.model.VariantWrapper;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,13 +22,15 @@ import static com.macbean.tech.shopify.ShopifyHttpClient.sendJson;
 
 public class ShopifyClient {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShopifyClient.class);
+
     public Products getAllProducts() throws IOException {
         final ObjectMapper jsonMapper = new ObjectMapper();
         final InputStream jsonInputstream = getJson(ShopifyConstants.GET_PRODUCTS_URL);
         //final JavaType returnType = jsonMapper.getTypeFactory().constructCollectionType(List.class, Product.class);
         Products products = jsonMapper.readValue(jsonInputstream, Products.class);
-        System.out.println("***** All Products *****");
-        products.getProducts().stream().map(product -> product.getTitle()).sorted().forEach(System.out::println);
+        LOGGER.debug("***** All Products *****");
+        products.getProducts().stream().map(product -> product.getTitle()).sorted().forEach(LOGGER::debug);
         return products;
     }
 
@@ -39,8 +43,8 @@ public class ShopifyClient {
             typeProducts.add(product);
             result.put(product.getProductType(), typeProducts);
         }
-        System.out.println("***** Product Types *****");
-        result.keySet().stream().sorted().forEach(System.out::println);
+        LOGGER.debug("***** Product Types *****");
+        result.keySet().stream().sorted().forEach(LOGGER::debug);
         return result;
     }
 
@@ -51,7 +55,7 @@ public class ShopifyClient {
             for (final Variant variant : product.getVariants()) {
                 if (StringUtils.containsAny(variant.getTitle(), PRICING_PROFILES.toArray(new CharSequence[PRICING_PROFILES.size()])) &&
                         INVENTORY_SHOPIFY.equals(variant.getInventoryManagement())) {
-                    System.out.println("Incorrect Inventory Variant = " + product.getTitle() + " - " + variant.getTitle());
+                    LOGGER.debug("Incorrect Inventory Variant = " + product.getTitle() + " - " + variant.getTitle());
                     incorrectVariants.add(variant);
                 }
             }
@@ -69,6 +73,7 @@ public class ShopifyClient {
             variantWrapper.setVariant(updateVariant);
             final ObjectMapper jsonMapper = new ObjectMapper();
             final String payload = jsonMapper.writeValueAsString(variantWrapper);
+            LOGGER.debug("updateIncorrectVariants JSON payload: " + payload);
             sendJson(PUT_VARIANT_URL(variant.getId()), PUT_REQUEST_METHOD, payload);
         }
 
