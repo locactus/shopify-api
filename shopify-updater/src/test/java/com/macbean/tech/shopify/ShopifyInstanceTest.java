@@ -15,7 +15,7 @@ public class ShopifyInstanceTest {
 
     @Test
     public void getPutVariantUrl() {
-        assertThat(testInstance.getPutVariantUrl(1967l),
+        assertThat(testInstance.getPutVariantUrl(1967L),
                 is("https://username;password@test.shopify.com/admin/variants/1967.json"));
     }
 

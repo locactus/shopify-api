@@ -8,7 +8,6 @@ public class ShopifyConstants {
 
     static final String JSON_CONTENT_TYPE = "application/json";
     static final String GET_REQUEST_METHOD = "GET";
-    static final String POST_REQUEST_METHOD = "POST";
     static final String PUT_REQUEST_METHOD = "PUT";
     static final String GET_REQUEST_PROPERTY = "Accept";
 
