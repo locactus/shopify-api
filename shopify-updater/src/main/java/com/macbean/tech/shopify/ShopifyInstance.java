@@ -23,7 +23,7 @@ public class ShopifyInstance {
     }
 
     public String getBaseUrl() {
-        return HTTPS_PREFIX + userName + ";" + getPassword() + "@" + domain;
+        return HTTPS_PREFIX + getUserName() + ";" + getPassword() + "@" + getDomain();
     }
 
     public String getDomain() {
