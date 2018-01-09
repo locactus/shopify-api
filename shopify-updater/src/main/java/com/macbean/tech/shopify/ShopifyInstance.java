@@ -22,11 +22,11 @@ public class ShopifyInstance {
         return getBaseUrl() + GET_PRODUCTS;
     }
 
-    public String getBaseUrl() {
+    private String getBaseUrl() {
         return HTTPS_PREFIX + getUserName() + ";" + getPassword() + "@" + getDomain();
     }
 
-    public String getDomain() {
+    private String getDomain() {
         return domain;
     }
 

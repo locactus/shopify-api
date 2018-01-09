@@ -31,7 +31,7 @@ public class ShopifyHttpClient {
     private InputStream get(String url, String mimeType) throws IOException {
         final HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
         connection.setRequestMethod(GET_REQUEST_METHOD);
-        connection.setRequestProperty(GET_REQUEST_PROPERTY, mimeType);
+        connection.setRequestProperty(HTTP_ACCEPT_PROPERTY, mimeType);
         return connection.getInputStream();
     }
 
@@ -52,8 +52,8 @@ public class ShopifyHttpClient {
         connection.setRequestMethod(requestMethod);
         connection.setDoInput(true);
         connection.setDoOutput(true);
-        connection.setRequestProperty("Content-Type", JSON_CONTENT_TYPE);
-        connection.setRequestProperty("Accept", JSON_CONTENT_TYPE);
+        connection.setRequestProperty(HTTP_CONTENT_TYPE_PROPERTY, JSON_CONTENT_TYPE);
+        connection.setRequestProperty(HTTP_ACCEPT_PROPERTY, JSON_CONTENT_TYPE);
         LOGGER.debug("***** SEND JSON *****");
         LOGGER.debug(url);
         LOGGER.debug(requestMethod);
