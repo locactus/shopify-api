@@ -53,7 +53,8 @@ public class ShopifyClient {
         for (final Product product : products.getProducts()) {
             for (final Variant variant : product.getVariants()) {
                 if (StringUtils.containsAny(variant.getTitle(), PRICING_PROFILES.toArray(new CharSequence[PRICING_PROFILES.size()])) &&
-                        INVENTORY_SHOPIFY.equals(variant.getInventoryManagement())) {
+                        INVENTORY_SHOPIFY.equals(variant.getInventoryManagement()) &&
+                        variant.getInventoryQuantity() > 0L) {
                     LOGGER.debug("Incorrect Inventory Variant = " + product.getTitle() + " - " + variant.getTitle());
                     incorrectVariants.add(variant);
                 }
