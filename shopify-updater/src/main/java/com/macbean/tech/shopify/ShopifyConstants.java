@@ -24,8 +24,8 @@ public class ShopifyConstants {
     static final String PUT_VARIANT = "/admin/variants/";
 
     static final ShopifyInstance UK_INSTANCE = new ShopifyInstance(
-            "squashuk.myshopify.com",
-            "ec985b46ffe3b3d340719bfd0e415e31",
-            "1b4cabb72773b3299104912ed5b21954"
+            "",
+            "",
+            ""
     );
 }
