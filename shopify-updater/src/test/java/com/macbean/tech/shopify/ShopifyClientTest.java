@@ -19,6 +19,7 @@ public class ShopifyClientTest {
     private static final int NO_OF_PRODUCTS = 50;
     private static final int NO_OF_PRODUCT_TYPES = 17;
     private static final int NO_OF_INCORRECT_INVENTORY_VARIANTS = 0;
+    private static final int NO_OF_UPDATEABLE_INVENTORY_VARIANTS = 118;
 
     @Test
     public void testGetProducts() throws Exception {
@@ -41,6 +42,13 @@ public class ShopifyClientTest {
         List<Variant> incorrectInventory = testInstance.getAllVariantsWithIncorrectInventory();
         assertNotNull(incorrectInventory);
         assertThat(incorrectInventory, hasSize(NO_OF_INCORRECT_INVENTORY_VARIANTS));
+    }
+
+    @Test
+    public void testGetUpdatableVariants() throws Exception {
+        List<Variant> updatableInventory = testInstance.getAllUpdatableVariants();
+        assertNotNull(updatableInventory);
+        assertThat(updatableInventory, hasSize(NO_OF_UPDATEABLE_INVENTORY_VARIANTS));
     }
 
     @Test

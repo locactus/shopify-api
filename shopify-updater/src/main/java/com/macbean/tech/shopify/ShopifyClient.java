@@ -54,13 +54,40 @@ public class ShopifyClient {
             for (final Variant variant : product.getVariants()) {
                 if (StringUtils.containsAny(variant.getTitle(), PRICING_PROFILES.toArray(new CharSequence[PRICING_PROFILES.size()])) &&
                         INVENTORY_SHOPIFY.equals(variant.getInventoryManagement()) &&
-                        variant.getInventoryQuantity() > 0L) {
+                        variant.getInventoryQuantity() <= 0L) {
                     LOGGER.debug("Incorrect Inventory Variant = " + product.getTitle() + " - " + variant.getTitle());
                     incorrectVariants.add(variant);
                 }
             }
         }
         return incorrectVariants;
+    }
+
+    public List<Variant> getAllUpdatableVariants() throws IOException {
+        final List<Variant> updateableVariants = new ArrayList<>();
+        final Products products = getAllProducts();
+        final Map<Long, Product> productIdMap = new HashMap<>();
+        for (final Product product : products.getProducts()) {
+            for (final Variant variant : product.getVariants()) {
+                productIdMap.put(product.getId(), product);
+                if (INVENTORY_SHOPIFY.equalsIgnoreCase(variant.getInventoryManagement()) &&
+                        (!variant.getTitle().contains("(") & !variant.getTitle().contains(")"))) {
+                    LOGGER.debug("Updatable Inventory Variant = " + product.getTitle() + " - " + variant.getTitle());
+                    updateableVariants.add(variant);
+                }
+            }
+        }
+        System.out.println("ProductId, ProductName, SKU, VariantId, VariantTitle, InventoryManagement, CurrentStock");
+        updateableVariants.stream().forEach(variant->System.out.println(
+                variant.getProductId() + "," +
+                productIdMap.get(variant.getProductId()).getTitle() + "," +
+                variant.getSku() + "," +
+                variant.getId() + "," +
+                variant.getTitle() + "," +
+                variant.getInventoryManagement() + "," +
+                variant.getInventoryQuantity()
+        ));
+        return updateableVariants;
     }
 
     public void updateIncorrectVariants() throws Exception {
