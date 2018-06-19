@@ -6,11 +6,6 @@ import static java.util.Arrays.asList;
 
 public class ShopifyConstants {
 
-    static final List<String> PRICING_PROFILES = asList("(gold)","(silver)","(bronze)","(stringer)","(sponsorship)","(affiliate)");
-
-    static final String INVENTORY_SHOPIFY = "shopify";
-    static final String INVENTORY_NON_SHOPIFY = null;
-
     static final String GET_REQUEST_METHOD = "GET";
     static final String PUT_REQUEST_METHOD = "PUT";
 
