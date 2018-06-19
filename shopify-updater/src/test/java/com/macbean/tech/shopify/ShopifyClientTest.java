@@ -17,9 +17,7 @@ public class ShopifyClientTest {
     private ShopifyClient testInstance = new ShopifyClient();
 
     private static final int NO_OF_PRODUCTS = 50;
-    private static final int NO_OF_PRODUCT_TYPES = 17;
-    private static final int NO_OF_INCORRECT_INVENTORY_VARIANTS = 0;
-    private static final int NO_OF_UPDATEABLE_INVENTORY_VARIANTS = 118;
+    private static final int NO_OF_PRODUCT_TYPES = 13;
 
     @Test
     public void testGetProducts() throws Exception {
@@ -35,27 +33,5 @@ public class ShopifyClientTest {
         assertNotNull(productsByType);
         assertNotNull(productsByType.keySet());
         assertThat(productsByType.keySet(), hasSize(NO_OF_PRODUCT_TYPES));
-    }
-
-    @Test
-    public void testGetIncorrectVariants() throws Exception {
-        List<Variant> incorrectInventory = testInstance.getAllVariantsWithIncorrectInventory();
-        assertNotNull(incorrectInventory);
-        assertThat(incorrectInventory, hasSize(NO_OF_INCORRECT_INVENTORY_VARIANTS));
-    }
-
-    @Test
-    public void testGetUpdatableVariants() throws Exception {
-        List<Variant> updatableInventory = testInstance.getAllUpdatableVariants();
-        assertNotNull(updatableInventory);
-        assertThat(updatableInventory, hasSize(NO_OF_UPDATEABLE_INVENTORY_VARIANTS));
-    }
-
-    @Test
-    public void testUpdateIncorrectVariants() throws Exception {
-        //testInstance.updateIncorrectVariants();
-        List<Variant> incorrectInventory = testInstance.getAllVariantsWithIncorrectInventory();
-        assertNotNull(incorrectInventory);
-        assertThat(incorrectInventory, hasSize(NO_OF_INCORRECT_INVENTORY_VARIANTS));
     }
 }
