@@ -13,13 +13,12 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 public class PageEventHandler extends PdfPageEventHelper {
 
     private static final Font FONT = new Font(Font.FontFamily.HELVETICA, 6, Font.NORMAL, BaseColor.BLACK);
-    private static final String DATE_FORMAT = "dd-MM-yyyy";
     private static final float ROTATION = 0f;
     private static final float Y_ADJUST = 10f;
 
     public void onEndPage(PdfWriter writer, Document document) {
 
-        final Phrase header = new Phrase(ofPattern(DATE_FORMAT).format(LocalDate.now()), FONT);
+        final Phrase header = new Phrase(ofPattern(ShopifyReportGenerator.DATE_FORMAT).format(LocalDate.now()), FONT);
         final Phrase footer = new Phrase("Page " + writer.getPageNumber(), FONT);
 
         final PdfContentByte directContent = writer.getDirectContent();
