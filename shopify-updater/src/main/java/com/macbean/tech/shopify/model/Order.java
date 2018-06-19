@@ -186,7 +186,7 @@ public class Order {
     @JsonProperty("line_items")
     private List<LineItem> lineItems = null;
     @JsonProperty("shipping_lines")
-    private List<Object> shippingLines = null;
+    private List<ShippingLine> shippingLines = null;
     @JsonProperty("billing_address")
     private BillingAddress billingAddress;
     @JsonProperty("shipping_address")
@@ -755,12 +755,12 @@ public class Order {
     }
 
     @JsonProperty("shipping_lines")
-    public List<Object> getShippingLines() {
+    public List<ShippingLine> getShippingLines() {
         return shippingLines;
     }
 
     @JsonProperty("shipping_lines")
-    public void setShippingLines(List<Object> shippingLines) {
+    public void setShippingLines(List<ShippingLine> shippingLines) {
         this.shippingLines = shippingLines;
     }
 

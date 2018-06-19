@@ -19,6 +19,9 @@ public class ShopifyConstants {
     static final String GET_ORDERS = "/admin/orders" + JSON_SUFFIX;
     static final String PUT_VARIANT = "/admin/variants/";
 
+    static final String ORDER_STATUS_ANY = "any";
+    static final String ORDER_FINANCIAL_STATUS_PAID = "paid";
+    static final long ORDER_LIMIT_MAX = 250;
     static final ShopifyInstance UK_INSTANCE = new ShopifyInstance(
             "",
             "",

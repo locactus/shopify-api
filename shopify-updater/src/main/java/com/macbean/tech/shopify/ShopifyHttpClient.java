@@ -10,6 +10,9 @@ import java.io.OutputStreamWriter;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import static com.macbean.tech.shopify.ShopifyConstants.*;
 
@@ -43,8 +46,14 @@ public class ShopifyHttpClient {
         return get(shopifyInstance.getGetProductsUrl(), JSON_CONTENT_TYPE);
     }
 
-    InputStream getOrdersJson() throws IOException {
-        return get(shopifyInstance.getGetOrdersUrl(), JSON_CONTENT_TYPE);
+    InputStream getOrdersJson(long page) throws IOException {
+        return get(shopifyInstance.getGetOrdersUrl(ORDER_STATUS_ANY, ORDER_FINANCIAL_STATUS_PAID,
+                String.valueOf(ORDER_LIMIT_MAX), String.valueOf(page), null, null), JSON_CONTENT_TYPE);
+    }
+
+    InputStream getOrdersJson(long page, ZonedDateTime from, ZonedDateTime to) throws IOException {
+        return get(shopifyInstance.getGetOrdersUrl(ORDER_STATUS_ANY, ORDER_FINANCIAL_STATUS_PAID,
+                String.valueOf(ORDER_LIMIT_MAX), String.valueOf(page), from, to), JSON_CONTENT_TYPE);
     }
 
     public void putVariant(Long variantId, String requestMethod, String payload) throws IOException {

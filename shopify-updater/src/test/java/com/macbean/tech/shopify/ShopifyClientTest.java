@@ -1,16 +1,18 @@
 package com.macbean.tech.shopify;
 
-import com.macbean.tech.shopify.model.Orders;
-import com.macbean.tech.shopify.model.Product;
-import com.macbean.tech.shopify.model.Products;
-import com.macbean.tech.shopify.model.Variant;
+import com.macbean.tech.shopify.model.*;
 import org.junit.Test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 
 public class ShopifyClientTest {
@@ -19,6 +21,7 @@ public class ShopifyClientTest {
 
     private static final int NO_OF_PRODUCTS = 50;
     private static final int NO_OF_PRODUCT_TYPES = 13;
+    private static final int NO_OF_ORDERS_IN_MAY_2018 = 92;
 
     @Test
     public void testGetProducts() throws Exception {
@@ -37,9 +40,20 @@ public class ShopifyClientTest {
     }
 
     @Test
-    public void testGetOrders() throws Exception {
+    public void testGetAllOrders() throws Exception {
         final Orders orders = testInstance.getAllOrders();
         assertNotNull(orders);
         assertNotNull(orders.getOrders());
+    }
+
+    @Test
+    public void testGetAllOrdersFromPeriod() throws Exception {
+        final Orders orders = testInstance.getAllOrders(
+                ZonedDateTime.of(2018,5,1, 0, 0, 0, 0, ZoneId.systemDefault()),
+                ZonedDateTime.of(2018,5,31,23,59,59,0, ZoneId.systemDefault())
+        );
+        assertNotNull(orders);
+        assertNotNull(orders.getOrders());
+        assertThat(orders.getOrders().size(), is(NO_OF_ORDERS_IN_MAY_2018));
     }
 }

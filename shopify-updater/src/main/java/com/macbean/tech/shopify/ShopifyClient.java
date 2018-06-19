@@ -1,19 +1,23 @@
 package com.macbean.tech.shopify;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.macbean.tech.shopify.model.*;
-import org.apache.commons.lang3.StringUtils;
+import com.macbean.tech.shopify.model.Order;
+import com.macbean.tech.shopify.model.Orders;
+import com.macbean.tech.shopify.model.Product;
+import com.macbean.tech.shopify.model.Products;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.macbean.tech.shopify.ShopifyConstants.*;
+import static com.macbean.tech.shopify.ShopifyConstants.ORDER_LIMIT_MAX;
+import static com.macbean.tech.shopify.ShopifyConstants.UK_INSTANCE;
 
 public class ShopifyClient {
 
@@ -21,7 +25,7 @@ public class ShopifyClient {
 
     private ShopifyHttpClient shopifyHttpClient = new ShopifyHttpClient(UK_INSTANCE);
 
-    Products getAllProducts() throws IOException {
+    public Products getAllProducts() throws IOException {
         final ObjectMapper jsonMapper = new ObjectMapper();
         final InputStream jsonInputstream = shopifyHttpClient.getProductsJson();
         Products products = jsonMapper.readValue(jsonInputstream, Products.class);
@@ -30,7 +34,7 @@ public class ShopifyClient {
         return products;
     }
 
-    Map<String, List<Product>> getAllProductsByType() throws IOException {
+    public Map<String, List<Product>> getAllProductsByType() throws IOException {
         final Map<String, List<Product>> result = new HashMap<>();
         final Products allProducts = getAllProducts();
         for (final Product product : allProducts.getProducts()) {
@@ -44,12 +48,28 @@ public class ShopifyClient {
         return result;
     }
 
-    Orders getAllOrders() throws IOException {
+    public Orders getAllOrders() throws IOException {
+        return getAllOrders(null, null);
+    }
+
+    public Orders getAllOrders(ZonedDateTime from, ZonedDateTime to) throws IOException {
         final ObjectMapper jsonMapper = new ObjectMapper();
-        final InputStream jsonInputstream = shopifyHttpClient.getOrdersJson();
-        final Orders orders = jsonMapper.readValue(jsonInputstream, Orders.class);
+        long pageCount = 1;
+        final Orders allOrders = new Orders();
+
+        InputStream jsonInputstream = shopifyHttpClient.getOrdersJson(pageCount, from, to);
+        Orders currentOrders = jsonMapper.readValue(jsonInputstream, Orders.class);
+        allOrders.setProducts(currentOrders.getOrders());
+
+        while (currentOrders.getOrders().size() == ORDER_LIMIT_MAX) {
+            pageCount++;
+            jsonInputstream = shopifyHttpClient.getOrdersJson(pageCount, from, to);
+            currentOrders = jsonMapper.readValue(jsonInputstream, Orders.class);
+            allOrders.getOrders().addAll(currentOrders.getOrders());
+        }
+
         LOGGER.debug("***** All Orders *****");
-        orders.getOrders().stream().map(Order::getName).sorted().forEach(LOGGER::debug);
-        return orders;
+        allOrders.getOrders().stream().map(Order::getName).sorted().forEach(LOGGER::debug);
+        return allOrders;
     }
 }
