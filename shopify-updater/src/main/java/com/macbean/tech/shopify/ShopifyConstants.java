@@ -16,6 +16,7 @@ public class ShopifyConstants {
     static final String HTTPS_PREFIX = "https://";
     static final String JSON_SUFFIX = ".json";
     static final String GET_PRODUCTS = "/admin/products" + JSON_SUFFIX;
+    static final String GET_ORDERS = "/admin/orders" + JSON_SUFFIX;
     static final String PUT_VARIANT = "/admin/variants/";
 
     static final ShopifyInstance UK_INSTANCE = new ShopifyInstance(

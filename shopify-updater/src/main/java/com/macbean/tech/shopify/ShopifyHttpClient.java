@@ -19,7 +19,7 @@ public class ShopifyHttpClient {
 
     private ShopifyInstance shopifyInstance;
 
-    public ShopifyHttpClient(ShopifyInstance shopifyInstance) {
+    ShopifyHttpClient(ShopifyInstance shopifyInstance) {
         this.shopifyInstance = shopifyInstance;
         Authenticator.setDefault (new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
@@ -39,8 +39,12 @@ public class ShopifyHttpClient {
         return get(url, JSON_CONTENT_TYPE);
     }
 
-    public InputStream getProductsJson() throws IOException {
+    InputStream getProductsJson() throws IOException {
         return get(shopifyInstance.getGetProductsUrl(), JSON_CONTENT_TYPE);
+    }
+
+    InputStream getOrdersJson() throws IOException {
+        return get(shopifyInstance.getGetOrdersUrl(), JSON_CONTENT_TYPE);
     }
 
     public void putVariant(Long variantId, String requestMethod, String payload) throws IOException {

@@ -1,5 +1,6 @@
 package com.macbean.tech.shopify;
 
+import com.macbean.tech.shopify.model.Orders;
 import com.macbean.tech.shopify.model.Product;
 import com.macbean.tech.shopify.model.Products;
 import com.macbean.tech.shopify.model.Variant;
@@ -33,5 +34,12 @@ public class ShopifyClientTest {
         assertNotNull(productsByType);
         assertNotNull(productsByType.keySet());
         assertThat(productsByType.keySet(), hasSize(NO_OF_PRODUCT_TYPES));
+    }
+
+    @Test
+    public void testGetOrders() throws Exception {
+        final Orders orders = testInstance.getAllOrders();
+        assertNotNull(orders);
+        assertNotNull(orders.getOrders());
     }
 }

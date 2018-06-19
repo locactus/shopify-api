@@ -22,6 +22,9 @@ public class ShopifyInstance {
         return getBaseUrl() + GET_PRODUCTS;
     }
 
+    public String getGetOrdersUrl() {
+        return getBaseUrl() + GET_ORDERS;
+    }
     private String getBaseUrl() {
         return HTTPS_PREFIX + getUserName() + ";" + getPassword() + "@" + getDomain();
     }
