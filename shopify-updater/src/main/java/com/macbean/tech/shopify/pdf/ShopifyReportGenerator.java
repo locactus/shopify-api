@@ -168,7 +168,10 @@ public class ShopifyReportGenerator {
                 totalTaxAmount = totalTaxAmount.add(tax);
                 commissionBreakdownTable.addCell(createTableCell(tax, ALIGN_RIGHT));
 
-                final BigDecimal shipping = new BigDecimal(order.getShippingLines().get(0).getPrice());
+                BigDecimal shipping = BigDecimal.ZERO;
+                if (order.getShippingLines() != null && order.getShippingLines().size() > 0) {
+                    shipping = new BigDecimal(order.getShippingLines().get(0).getPrice());
+                }
                 totalShippingAmount = totalShippingAmount.add(shipping);
                 commissionBreakdownTable.addCell(createTableCell(shipping, ALIGN_RIGHT));
 
