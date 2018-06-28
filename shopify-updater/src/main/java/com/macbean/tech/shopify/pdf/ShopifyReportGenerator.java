@@ -47,6 +47,13 @@ public class ShopifyReportGenerator {
     private static final String UK = "GB";
     private static final String IRELAND = "IE";
 
+    private static final String BANK_NAME = "Royal Bank of Scotland";
+    private static final String BANK_ACCOUNT_NAME = "MACBEAN A & L";
+    private static final String BANK_SORT_CODE = "83-23-10";
+    private static final String BANK_ACCOUNT_NO = "00249958";
+    private static final String BANK_BIC = "RBOSGB2L";
+    private static final String BANK_IBAN = "GB52RBOS83231000249958";
+
     private ShopifyClient shopifyClient = new ShopifyClient();
 
     private Document document;
@@ -214,16 +221,28 @@ public class ShopifyReportGenerator {
 
     private void addFooter(BigDecimal totalCommissionDue) throws DocumentException {
         final PdfPTable footerTable = createFullWidthTable(5,1);
-
-        footerTable.setWidthPercentage(100f);
         footerTable.addCell(createTableHeaderCell("Total Commission due to " + NAME + " for period " + dateFrom + " to " + dateTo));
         footerTable.addCell(createTableHeaderCell(totalCommissionDue, ALIGN_RIGHT));
-
         document.add(footerTable);
+
+        final PdfPTable paymentDetailsTable = createFullWidthTable(2);
+        paymentDetailsTable.addCell(createTableCell("Bank", ALIGN_RIGHT, false));
+        paymentDetailsTable.addCell(createTableCell(BANK_NAME, ALIGN_LEFT, false));
+        paymentDetailsTable.addCell(createTableCell("Account Name", ALIGN_RIGHT, false));
+        paymentDetailsTable.addCell(createTableCell(BANK_ACCOUNT_NAME, ALIGN_LEFT, false));
+        paymentDetailsTable.addCell(createTableCell("Sort Code", ALIGN_RIGHT, false));
+        paymentDetailsTable.addCell(createTableCell(BANK_SORT_CODE, ALIGN_LEFT, false));
+        paymentDetailsTable.addCell(createTableCell("Account Number", ALIGN_RIGHT, false));
+        paymentDetailsTable.addCell(createTableCell(BANK_ACCOUNT_NO, ALIGN_LEFT, false));
+        paymentDetailsTable.addCell(createTableCell("BIC", ALIGN_RIGHT, false));
+        paymentDetailsTable.addCell(createTableCell(BANK_BIC, ALIGN_LEFT, false));
+        paymentDetailsTable.addCell(createTableCell("IBAN", ALIGN_RIGHT, false));
+        paymentDetailsTable.addCell(createTableCell(BANK_IBAN, ALIGN_LEFT, false));
+        document.add(paymentDetailsTable);
     }
 
     private void writePdfToFile(String name, byte[] pdfBytes) {
-        final String filename = "/Users/Andrew/Desktop" + File.separatorChar + name + ".pdf";
+        final String filename = "/home/dev/Desktop" + File.separatorChar + name + ".pdf";
         try (FileOutputStream fos = new FileOutputStream(filename)) {
             fos.write(pdfBytes);
             LOGGER.debug("File written to {}", filename);
