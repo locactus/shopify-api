@@ -226,26 +226,14 @@ public class ShopifyReportGenerator {
         final PdfPCell summaryCell = createTableHeaderCell("Payment Summary", ALIGN_CENTER);
         summaryCell.setColspan(2);
         miscDetailsTable.addCell(summaryCell);
-
         miscDetailsTable.addCell(createTableCell("Total Commission due for period " + dateFrom + " to " + dateTo));
         miscDetailsTable.addCell(createTableCell(totalCommissionDue, ALIGN_RIGHT));
-        miscDetailsTable.addCell(createTableCell("GSuite Fees (June & July)", ALIGN_LEFT));
-        final BigDecimal gSuiteFees = new BigDecimal(6.60d);
-        miscDetailsTable.addCell(createTableCell(gSuiteFees, ALIGN_RIGHT));
-        miscDetailsTable.addCell(createTableCell(".IE Domain Registration", ALIGN_LEFT));
-        final BigDecimal ieDomain = new BigDecimal(18.42d);
-        miscDetailsTable.addCell(createTableCell(ieDomain, ALIGN_RIGHT));
-        miscDetailsTable.addCell(createTableCell(".ES Domain Registration", ALIGN_LEFT));
-        final BigDecimal esDomain = new BigDecimal(7.40d);
-        miscDetailsTable.addCell(createTableCell(esDomain, ALIGN_RIGHT));
-        miscDetailsTable.addCell(createTableCell("MyHermes Collections/Deliveries", ALIGN_LEFT));
-        final BigDecimal myHermesCosts = new BigDecimal(11.37d);
-        miscDetailsTable.addCell(createTableCell(myHermesCosts, ALIGN_RIGHT));
 
-        final BigDecimal totalDue = totalCommissionDue.add(gSuiteFees).add(ieDomain).add(esDomain).add(myHermesCosts);
+        final BigDecimal miscTotals = addMiscItems(miscDetailsTable);
+
+        final BigDecimal totalDue = totalCommissionDue.add(miscTotals);
         miscDetailsTable.addCell(createTableHeaderCell("TOTAL DUE"));
         miscDetailsTable.addCell(createTableHeaderCell(totalDue, ALIGN_RIGHT));
-
         document.add(miscDetailsTable);
 
         final PdfPTable paymentDetailsTable = createFullWidthTable(2);
@@ -262,6 +250,26 @@ public class ShopifyReportGenerator {
         paymentDetailsTable.addCell(createTableCell("IBAN", ALIGN_RIGHT, false));
         paymentDetailsTable.addCell(createTableCell(BANK_IBAN, ALIGN_LEFT, false));
         document.add(paymentDetailsTable);
+    }
+
+    private BigDecimal addMiscItems(PdfPTable miscDetailsTable) {
+        miscDetailsTable.addCell(createTableCell("GSuite Fees (June & July)", ALIGN_LEFT));
+        final BigDecimal gSuiteFees = new BigDecimal(6.60d);
+        miscDetailsTable.addCell(createTableCell(gSuiteFees, ALIGN_RIGHT));
+
+        miscDetailsTable.addCell(createTableCell(".IE Domain Registration", ALIGN_LEFT));
+        final BigDecimal ieDomain = new BigDecimal(18.42d);
+        miscDetailsTable.addCell(createTableCell(ieDomain, ALIGN_RIGHT));
+
+        miscDetailsTable.addCell(createTableCell(".ES Domain Registration", ALIGN_LEFT));
+        final BigDecimal esDomain = new BigDecimal(7.40d);
+        miscDetailsTable.addCell(createTableCell(esDomain, ALIGN_RIGHT));
+
+        miscDetailsTable.addCell(createTableCell("MyHermes Collections/Deliveries", ALIGN_LEFT));
+        final BigDecimal myHermesCosts = new BigDecimal(11.37d);
+        miscDetailsTable.addCell(createTableCell(myHermesCosts, ALIGN_RIGHT));
+
+        return gSuiteFees.add(ieDomain).add(ieDomain).add(myHermesCosts);
     }
 
     private void writePdfToFile(String name, byte[] pdfBytes) {
