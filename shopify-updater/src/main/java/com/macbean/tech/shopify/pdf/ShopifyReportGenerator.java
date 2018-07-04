@@ -220,10 +220,33 @@ public class ShopifyReportGenerator {
     }
 
     private void addFooter(BigDecimal totalCommissionDue) throws DocumentException {
-        final PdfPTable footerTable = createFullWidthTable(5,1);
-        footerTable.addCell(createTableHeaderCell("Total Commission due to " + NAME + " for period " + dateFrom + " to " + dateTo));
-        footerTable.addCell(createTableHeaderCell(totalCommissionDue, ALIGN_RIGHT));
-        document.add(footerTable);
+
+        final PdfPTable miscDetailsTable = createFullWidthTable(3,1);
+
+        final PdfPCell summaryCell = createTableHeaderCell("Payment Summary", ALIGN_CENTER);
+        summaryCell.setColspan(2);
+        miscDetailsTable.addCell(summaryCell);
+
+        miscDetailsTable.addCell(createTableCell("Total Commission due for period " + dateFrom + " to " + dateTo));
+        miscDetailsTable.addCell(createTableCell(totalCommissionDue, ALIGN_RIGHT));
+        miscDetailsTable.addCell(createTableCell("GSuite Fees (June & July)", ALIGN_LEFT));
+        final BigDecimal gSuiteFees = new BigDecimal(6.60d);
+        miscDetailsTable.addCell(createTableCell(gSuiteFees, ALIGN_RIGHT));
+        miscDetailsTable.addCell(createTableCell(".IE Domain Registration", ALIGN_LEFT));
+        final BigDecimal ieDomain = new BigDecimal(18.42d);
+        miscDetailsTable.addCell(createTableCell(ieDomain, ALIGN_RIGHT));
+        miscDetailsTable.addCell(createTableCell(".ES Domain Registration", ALIGN_LEFT));
+        final BigDecimal esDomain = new BigDecimal(7.40d);
+        miscDetailsTable.addCell(createTableCell(esDomain, ALIGN_RIGHT));
+        miscDetailsTable.addCell(createTableCell("MyHermes Collections/Deliveries", ALIGN_LEFT));
+        final BigDecimal myHermesCosts = new BigDecimal(11.37d);
+        miscDetailsTable.addCell(createTableCell(myHermesCosts, ALIGN_RIGHT));
+
+        final BigDecimal totalDue = totalCommissionDue.add(gSuiteFees).add(ieDomain).add(esDomain).add(myHermesCosts);
+        miscDetailsTable.addCell(createTableHeaderCell("TOTAL DUE"));
+        miscDetailsTable.addCell(createTableHeaderCell(totalDue, ALIGN_RIGHT));
+
+        document.add(miscDetailsTable);
 
         final PdfPTable paymentDetailsTable = createFullWidthTable(2);
         paymentDetailsTable.addCell(createTableCell("Bank", ALIGN_RIGHT, false));
