@@ -266,7 +266,7 @@ public class ShopifyReportGenerator {
         miscDetailsTable.addCell(createTableCell(esDomain, ALIGN_RIGHT));
 
         miscDetailsTable.addCell(createTableCell("MyHermes Collections/Deliveries", ALIGN_LEFT));
-        final BigDecimal myHermesCosts = new BigDecimal(11.37d);
+        final BigDecimal myHermesCosts = new BigDecimal(15.36d);
         miscDetailsTable.addCell(createTableCell(myHermesCosts, ALIGN_RIGHT));
 
         return gSuiteFees.add(ieDomain).add(ieDomain).add(myHermesCosts);
