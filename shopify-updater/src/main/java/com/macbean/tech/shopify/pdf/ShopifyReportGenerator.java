@@ -253,23 +253,15 @@ public class ShopifyReportGenerator {
     }
 
     private BigDecimal addMiscItems(PdfPTable miscDetailsTable) {
-        miscDetailsTable.addCell(createTableCell("GSuite Fees (June & July)", ALIGN_LEFT));
-        final BigDecimal gSuiteFees = new BigDecimal(6.60d);
+        miscDetailsTable.addCell(createTableCell("GSuite Fees", ALIGN_LEFT));
+        final BigDecimal gSuiteFees = new BigDecimal(3.30d);
         miscDetailsTable.addCell(createTableCell(gSuiteFees, ALIGN_RIGHT));
 
-        miscDetailsTable.addCell(createTableCell(".IE Domain Registration", ALIGN_LEFT));
-        final BigDecimal ieDomain = new BigDecimal(18.42d);
-        miscDetailsTable.addCell(createTableCell(ieDomain, ALIGN_RIGHT));
-
-        miscDetailsTable.addCell(createTableCell(".ES Domain Registration", ALIGN_LEFT));
-        final BigDecimal esDomain = new BigDecimal(7.40d);
-        miscDetailsTable.addCell(createTableCell(esDomain, ALIGN_RIGHT));
-
         miscDetailsTable.addCell(createTableCell("MyHermes Collections/Deliveries", ALIGN_LEFT));
-        final BigDecimal myHermesCosts = new BigDecimal(15.36d);
+        final BigDecimal myHermesCosts = new BigDecimal(2.79d);
         miscDetailsTable.addCell(createTableCell(myHermesCosts, ALIGN_RIGHT));
 
-        return gSuiteFees.add(ieDomain).add(ieDomain).add(myHermesCosts);
+        return gSuiteFees.add(myHermesCosts);
     }
 
     private void writePdfToFile(String name, byte[] pdfBytes) {
