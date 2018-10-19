@@ -18,8 +18,8 @@ public class ShopifyReportGeneratorTest {
     @Test
     public void testGetAllOrdersFromPeriod() throws Exception {
         byte[] reportBytes = testInstance.generateAndrewCommissionReport(
-                ZonedDateTime.of(2018, 5, 1, 0, 0, 0, 0, ZoneId.systemDefault()),
-                ZonedDateTime.of(2018, 5, 31, 23, 59, 59, 0, ZoneId.systemDefault())
+                ZonedDateTime.of(2018, 10, 1, 0, 0, 0, 0, ZoneId.systemDefault()),
+                ZonedDateTime.of(2018, 10, 31, 23, 59, 59, 0, ZoneId.systemDefault())
         );
         assertNotNull(reportBytes);
 
