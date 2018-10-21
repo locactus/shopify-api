@@ -10,15 +10,21 @@ import java.time.LocalDate;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 
-public class PageEventHandler extends PdfPageEventHelper {
+public class ReportPageEventHandler extends PdfPageEventHelper {
 
     private static final Font FONT = new Font(Font.FontFamily.HELVETICA, 6, Font.NORMAL, BaseColor.BLACK);
     private static final float ROTATION = 0f;
     private static final float Y_ADJUST = 10f;
 
+    private String reportName;
+
+    ReportPageEventHandler(String reportName) {
+        this.reportName = reportName;
+    }
+
     public void onEndPage(PdfWriter writer, Document document) {
 
-        final Phrase header = new Phrase(ofPattern(ShopifyReportGenerator.DATE_FORMAT).format(LocalDate.now()), FONT);
+        final Phrase header = new Phrase(reportName + " (" + ofPattern(AbstractShopifyReportGenerator.DATE_FORMAT).format(LocalDate.now()) + ")", FONT);
         final Phrase footer = new Phrase("Page " + writer.getPageNumber(), FONT);
 
         final PdfContentByte directContent = writer.getDirectContent();
