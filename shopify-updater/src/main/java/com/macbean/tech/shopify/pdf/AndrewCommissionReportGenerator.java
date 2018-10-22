@@ -112,7 +112,7 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
                 commissionBreakdownTable.addCell(createTableCell(order.getName()));
 
                 final TemporalAccessor orderDate = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(order.getCreatedAt());
-                commissionBreakdownTable.addCell(createTableCell(DateTimeFormatter.ofPattern("dd-MM-yy hh:mm").format(orderDate)));
+                commissionBreakdownTable.addCell(createTableCell(DateTimeFormatter.ofPattern(ORDER_DATE_FORMAT).format(orderDate)));
 
                 commissionBreakdownTable.addCell(order.getShippingAddress().getCountryCode());
 

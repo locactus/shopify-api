@@ -27,6 +27,7 @@ public abstract class AbstractShopifyReportGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractShopifyReportGenerator.class);
 
     public static final String DATE_FORMAT = "dd-MMM-yyyy";
+    public static final String ORDER_DATE_FORMAT = "dd-MM-yy hh:mm";
 
     private static final Font DEFAULT_FONT = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
     private static final Font PAGE_TITLE_FONT = new Font(Font.FontFamily.HELVETICA, 12, Font.UNDERLINE, BaseColor.BLACK);
