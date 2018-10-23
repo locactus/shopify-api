@@ -5,6 +5,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.macbean.tech.shopify.ShopifyClient;
+import com.macbean.tech.shopify.ShopifyConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +29,11 @@ public abstract class AbstractShopifyReportGenerator {
 
     public static final String DATE_FORMAT = "dd-MMM-yyyy";
     public static final String ORDER_DATE_FORMAT = "dd-MM-yy hh:mm";
+    public static final String FILENAME_DATE_FORMAT = "yyyyMM";
 
     private static final Font DEFAULT_FONT = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
     private static final Font PAGE_TITLE_FONT = new Font(Font.FontFamily.HELVETICA, 12, Font.UNDERLINE, BaseColor.BLACK);
     private static final Font TABLE_HEADER_FONT = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.WHITE);
-    private static final String EYE_LOGO_URL = "https://cdn.shopify.com/s/files/1/0016/4996/7140/files/Eye_-_ball_and_name.png";
     private static final float ONE_HUNDRED_PERCENT = 100f;
     private static final float SPACING = 25f;
     private static final BaseColor TABLE_HEADER_BG = new BaseColor(10,49,82, 1);
@@ -46,6 +47,8 @@ public abstract class AbstractShopifyReportGenerator {
     String dateFrom;
     String dateTo;
     String reference;
+
+    abstract Rectangle getPageSize();
 
     abstract String getTitle();
 
@@ -62,7 +65,7 @@ public abstract class AbstractShopifyReportGenerator {
         this.to = to;
         this.dateFrom = DateTimeFormatter.ofPattern(DATE_FORMAT).format(from);
         this.dateTo = DateTimeFormatter.ofPattern(DATE_FORMAT).format(to);
-        this.reference = getReferencePrefix() + DateTimeFormatter.ofPattern("yyyyMM").format(to);
+        this.reference = getReferencePrefix() + DateTimeFormatter.ofPattern(FILENAME_DATE_FORMAT).format(to);
         this.shopifyClient = new ShopifyClient();
         byte[] pdfData = getPdfByteData();
         writePdfToFile(reference, pdfData);
@@ -70,7 +73,7 @@ public abstract class AbstractShopifyReportGenerator {
     }
 
     protected Image getEyeLogo(float width, float height, int alignment) throws DocumentException, IOException {
-        final Image eyeLogo = Image.getInstance(new URL(EYE_LOGO_URL));
+        final Image eyeLogo = Image.getInstance(new URL(ShopifyConstants.EYE_LOGO_URL));
         eyeLogo.scaleToFit(width,height);
         eyeLogo.setAlignment(alignment);
         return eyeLogo;
@@ -79,7 +82,7 @@ public abstract class AbstractShopifyReportGenerator {
     private byte[] getPdfByteData() {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
-            document = new Document(PageSize.A4);
+            document = new Document(getPageSize());
             final PdfWriter pdfWriter = PdfWriter.getInstance(document, byteArrayOutputStream);
             pdfWriter.setPageEvent(new ReportPageEventHandler(getTitle()));
             document.open();
@@ -97,7 +100,7 @@ public abstract class AbstractShopifyReportGenerator {
     }
 
     private void writePdfToFile(String name, byte[] pdfBytes) {
-        final String filename = "/Users/andrew/Desktop" + File.separatorChar + name + ".pdf";
+        final String filename = ShopifyConstants.OUTPUT_DIRECTORY + File.separatorChar + name + ".pdf";
         try (FileOutputStream fos = new FileOutputStream(filename)) {
             fos.write(pdfBytes);
             LOGGER.debug("File written to {}", filename);

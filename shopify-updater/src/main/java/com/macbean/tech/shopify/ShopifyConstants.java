@@ -1,9 +1,5 @@
 package com.macbean.tech.shopify;
 
-import java.util.List;
-
-import static java.util.Arrays.asList;
-
 public class ShopifyConstants {
 
     static final String GET_REQUEST_METHOD = "GET";
@@ -22,9 +18,13 @@ public class ShopifyConstants {
     static final String ORDER_STATUS_ANY = "any";
     static final String ORDER_FINANCIAL_STATUS_PAID = "paid";
     static final long ORDER_LIMIT_MAX = 250;
+
     static final ShopifyInstance UK_INSTANCE = new ShopifyInstance(
             "",
             "",
             ""
     );
+
+    public static final String OUTPUT_DIRECTORY = "/home/dev/Desktop";
+    public static final String EYE_LOGO_URL = "https://cdn.shopify.com/s/files/1/0016/4996/7140/files/Eye_-_ball_and_name.png";
 }

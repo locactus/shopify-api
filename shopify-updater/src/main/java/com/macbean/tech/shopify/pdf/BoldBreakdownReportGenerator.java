@@ -1,6 +1,8 @@
 package com.macbean.tech.shopify.pdf;
 
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.macbean.tech.shopify.model.Order;
@@ -22,6 +24,11 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
     private static final String PLATINUM_TAG = "platinum";
     private static final String GOLD_TAG = "gold";
     private static final String AFFILIATE_TAG = "affiliate";
+
+    @Override
+    Rectangle getPageSize() {
+        return PageSize.A4.rotate();
+    }
 
     @Override
     String getTitle() {
@@ -89,12 +96,13 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         headers.add(createTableHeaderCell("Shipping"));
         headers.add(createTableHeaderCell("Sales Amount"));
         headers.add(createTableHeaderCell("Discount"));
-        headers.add(createTableHeaderCell("Tags"));
+        headers.add(createTableHeaderCell("Customer Tags"));
+        headers.add(createTableHeaderCell("Order Tags"));
         return headers.toArray(new PdfPCell[0]);
     }
 
     private PdfPTable getPricingGroupTable(String name) {
-        final PdfPTable table = createFullWidthTable(4,6,6,3,4,4,4,4,4,4);
+        final PdfPTable table = createFullWidthTable(4,6,6,3,4,4,4,4,4,4,4);
         table.setWidthPercentage(100f);
         final PdfPCell titleCell = createTableHeaderCell(name, ALIGN_CENTER);
         titleCell.setColspan(getPricingTableHeaders().length);
@@ -134,6 +142,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
 
         table.addCell(createTableCell(new BigDecimal(order.getTotalDiscounts()), ALIGN_RIGHT));
         table.addCell(order.getCustomer().getTags());
+        table.addCell(order.getTags());
     }
 
     @Override

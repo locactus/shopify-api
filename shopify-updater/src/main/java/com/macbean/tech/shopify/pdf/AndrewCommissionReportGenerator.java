@@ -1,6 +1,8 @@
 package com.macbean.tech.shopify.pdf;
 
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.macbean.tech.shopify.model.Order;
@@ -30,6 +32,11 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
     private static final String IRELAND = "IE";
 
     private BigDecimal totalCommissionDue = BigDecimal.ZERO;
+
+    @Override
+    Rectangle getPageSize() {
+        return PageSize.A4;
+    }
 
     @Override
     String getTitle() {
