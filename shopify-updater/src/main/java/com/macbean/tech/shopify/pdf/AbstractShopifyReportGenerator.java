@@ -34,6 +34,7 @@ public abstract class AbstractShopifyReportGenerator {
     private static final Font DEFAULT_FONT = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
     private static final Font PAGE_TITLE_FONT = new Font(Font.FontFamily.HELVETICA, 12, Font.UNDERLINE, BaseColor.BLACK);
     private static final Font TABLE_HEADER_FONT = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.WHITE);
+    private static final Font TAG_FONT = new Font(Font.FontFamily.HELVETICA, 6, Font.NORMAL, BaseColor.BLACK);
     private static final float ONE_HUNDRED_PERCENT = 100f;
     private static final float SPACING = 25f;
     private static final BaseColor TABLE_HEADER_BG = new BaseColor(10,49,82, 1);
@@ -135,6 +136,10 @@ public abstract class AbstractShopifyReportGenerator {
 
     PdfPCell createTableCell(String text) {
         return createTableCell(text, Element.ALIGN_LEFT);
+    }
+
+    PdfPCell createTableTagCell(String text) {
+        return createTableCell(text, Element.ALIGN_LEFT, true, TAG_FONT);
     }
 
     PdfPCell createTableCell(BigDecimal value, int alignment) {

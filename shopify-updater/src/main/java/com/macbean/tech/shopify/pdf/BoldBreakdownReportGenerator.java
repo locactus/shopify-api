@@ -141,8 +141,8 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         table.addCell(createTableCell(salesAmount, ALIGN_RIGHT));
 
         table.addCell(createTableCell(new BigDecimal(order.getTotalDiscounts()), ALIGN_RIGHT));
-        table.addCell(order.getCustomer().getTags());
-        table.addCell(order.getTags());
+        table.addCell(createTableTagCell(order.getCustomer().getTags()));
+        table.addCell(createTableTagCell(order.getTags()));
     }
 
     @Override
