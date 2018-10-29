@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.itextpdf.text.Element.ALIGN_CENTER;
+import static com.itextpdf.text.Element.ALIGN_LEFT;
 import static com.itextpdf.text.Element.ALIGN_RIGHT;
 
 public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator {
@@ -49,60 +50,78 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
     void addContent() throws DocumentException, IOException {
         final Orders orders = shopifyClient.getAllOrders(from, to);
 
-        final PdfPTable freeTable = getPricingGroupTable("Free of Charge Orders");
         final PdfPTable tradeTable = getPricingGroupTable("Trade Sales");
         final PdfPTable platinumTable = getPricingGroupTable("Platinum Sales");
         final PdfPTable goldTable = getPricingGroupTable("Gold Sales");
         final PdfPTable affiliateTable = getPricingGroupTable("Affiliate Sales");
         final PdfPTable directTable = getPricingGroupTable("Direct Sales");
+        final PdfPTable freeTable = getPricingGroupTable("Free of Charge Orders");
+
+        BigDecimal tradeTotal = BigDecimal.ZERO;
+        BigDecimal platinumTotal = BigDecimal.ZERO;
+        BigDecimal goldTotal = BigDecimal.ZERO;
+        BigDecimal affiliateTotal = BigDecimal.ZERO;
+        BigDecimal directTotal = BigDecimal.ZERO;
+        BigDecimal freeTotal = BigDecimal.ZERO;
 
         for (Order order : orders.getOrders()) {
             if ("0.00".equals(order.getTotalPrice())) {
-                addOrderToTable(freeTable, order);
+                freeTotal = freeTotal.add(addOrderToTable(freeTable, order));
             }
             else if (order.getCustomer().getTags().contains(TRADE_TAG)) {
-                addOrderToTable(tradeTable, order);
+                tradeTotal = tradeTotal.add(addOrderToTable(tradeTable, order));
             }
             else if (order.getCustomer().getTags().contains(PLATINUM_TAG)) {
-                addOrderToTable(platinumTable, order);
+                platinumTotal = platinumTotal.add(addOrderToTable(platinumTable, order));
             }
             else if (order.getCustomer().getTags().contains(GOLD_TAG)) {
-                addOrderToTable(goldTable, order);
+                goldTotal = goldTotal.add(addOrderToTable(goldTable, order));
             }
             else if (order.getCustomer().getTags().contains(AFFILIATE_TAG)) {
-                addOrderToTable(affiliateTable, order);
+                affiliateTotal = affiliateTotal.add(addOrderToTable(affiliateTable, order));
             }
             else {
-                addOrderToTable(directTable, order);
+                directTotal = directTotal.add(addOrderToTable(directTable, order));
             }
         }
 
-        document.add(freeTable);
+        addTotalRowToTable("Trade Sales Total", tradeTotal, tradeTable);
         document.add(tradeTable);
+
+        addTotalRowToTable("Platinum Sales Total", platinumTotal, platinumTable);
         document.add(platinumTable);
+
+        addTotalRowToTable("Gold Sales Total", goldTotal, goldTable);
         document.add(goldTable);
+
+        addTotalRowToTable("Affiliate Sales Total", affiliateTotal, affiliateTable);
         document.add(affiliateTable);
+
+        addTotalRowToTable("Direct Sales Total", directTotal, directTable);
         document.add(directTable);
+
+        addTotalRowToTable("Free Sales Total", freeTotal, freeTable);
+        document.add(freeTable);
     }
 
     private PdfPCell[] getPricingTableHeaders() {
         final List<PdfPCell> headers = new ArrayList<>();
-        headers.add(createTableHeaderCell("Order #"));
+        headers.add(createTableHeaderCell("Ord #"));
         headers.add(createTableHeaderCell("Order Date"));
         headers.add(createTableHeaderCell("Customer Name"));
-        headers.add(createTableHeaderCell("Country"));
+        headers.add(createTableHeaderCell("Co."));
+        headers.add(createTableHeaderCell("Customer Tags"));
+        headers.add(createTableHeaderCell("Order Tags"));
+        headers.add(createTableHeaderCell("Discount"));
         headers.add(createTableHeaderCell("Order Total"));
         headers.add(createTableHeaderCell("Tax"));
         headers.add(createTableHeaderCell("Shipping"));
         headers.add(createTableHeaderCell("Sales Amount"));
-        headers.add(createTableHeaderCell("Discount"));
-        headers.add(createTableHeaderCell("Customer Tags"));
-        headers.add(createTableHeaderCell("Order Tags"));
         return headers.toArray(new PdfPCell[0]);
     }
 
     private PdfPTable getPricingGroupTable(String name) {
-        final PdfPTable table = createFullWidthTable(4,6,6,3,4,4,4,4,4,4,4);
+        final PdfPTable table = createFullWidthTable(2,6,6,2,5,5,3,3,3,3,3);
         table.setWidthPercentage(100f);
         final PdfPCell titleCell = createTableHeaderCell(name, ALIGN_CENTER);
         titleCell.setColspan(getPricingTableHeaders().length);
@@ -111,7 +130,16 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         return table;
     }
 
-    private void addOrderToTable(PdfPTable table, Order order) {
+    private void addTotalRowToTable(String text, BigDecimal amount, PdfPTable table) {
+        final PdfPCell titleCell = createTableCell(text, ALIGN_LEFT);
+        titleCell.setColspan(getPricingTableHeaders().length - 1);
+        table.addCell(titleCell);
+
+        final PdfPCell totalCell = createTableCell(amount, ALIGN_RIGHT);
+        table.addCell(totalCell);
+    }
+
+    private BigDecimal addOrderToTable(PdfPTable table, Order order) {
         table.addCell(createTableCell(order.getName()));
 
         final TemporalAccessor orderDate = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(order.getCreatedAt());
@@ -121,28 +149,27 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
 
         table.addCell(order.getShippingAddress().getCountryCode());
 
+        table.addCell(createTableTagCell(order.getCustomer().getTags()));
+        table.addCell(createTableTagCell(order.getTags()));
+
+        table.addCell(createTableCell(new BigDecimal(order.getTotalDiscounts()), ALIGN_RIGHT));
+
         final BigDecimal totalPrice = new BigDecimal(order.getTotalPrice());
-        //totalPriceAmount = totalPriceAmount.add(totalPrice);
         table.addCell(createTableCell(totalPrice, ALIGN_RIGHT));
 
         final BigDecimal tax = new BigDecimal(order.getTotalTax());
-        //totalTaxAmount = totalTaxAmount.add(tax);
         table.addCell(createTableCell(tax, ALIGN_RIGHT));
 
         BigDecimal shipping = BigDecimal.ZERO;
         if (order.getShippingLines() != null && order.getShippingLines().size() > 0) {
             shipping = new BigDecimal(order.getShippingLines().get(0).getPrice());
         }
-        //totalShippingAmount = totalShippingAmount.add(shipping);
         table.addCell(createTableCell(shipping, ALIGN_RIGHT));
 
         final BigDecimal salesAmount = totalPrice.subtract(tax).subtract(shipping);
-        //totalSalesAmount = totalSalesAmount.add(salesAmount);
         table.addCell(createTableCell(salesAmount, ALIGN_RIGHT));
 
-        table.addCell(createTableCell(new BigDecimal(order.getTotalDiscounts()), ALIGN_RIGHT));
-        table.addCell(createTableTagCell(order.getCustomer().getTags()));
-        table.addCell(createTableTagCell(order.getTags()));
+        return salesAmount;
     }
 
     @Override

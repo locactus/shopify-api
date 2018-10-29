@@ -228,7 +228,7 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
         miscDetailsTable.addCell(createTableCell(flights, ALIGN_RIGHT));
 
         miscDetailsTable.addCell(createTableCell("Hotel for myself, Daan, Bo & Lisa Aitken at St Georges Hill", ALIGN_LEFT));
-        final BigDecimal hotel = new BigDecimal(700d);
+        final BigDecimal hotel = new BigDecimal(723.80d);
         miscDetailsTable.addCell(createTableCell(hotel, ALIGN_RIGHT));
 
         return gSuiteFees.add(myHermesCosts).add(egcc).add(abingdon).add(flights).add(hotel);
