@@ -85,7 +85,7 @@ public abstract class AbstractShopifyReportGenerator {
         try {
             document = new Document(getPageSize());
             final PdfWriter pdfWriter = PdfWriter.getInstance(document, byteArrayOutputStream);
-            pdfWriter.setPageEvent(new ReportPageEventHandler(getTitle()));
+            pdfWriter.setPageEvent(new ReportPageEventHandler(getTitle(), this.dateFrom, this.dateTo));
             document.open();
             document.add(createPageTitle(getTitle()));
             addHeader();
