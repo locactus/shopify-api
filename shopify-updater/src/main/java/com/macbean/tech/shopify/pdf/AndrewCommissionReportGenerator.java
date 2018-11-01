@@ -223,14 +223,10 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
         final BigDecimal abingdon = new BigDecimal(81d);
         miscDetailsTable.addCell(createTableCell(egcc, ALIGN_RIGHT));
 
-        miscDetailsTable.addCell(createTableCell("Flights for myself & Lisa Aitken to St Georges Hill", ALIGN_LEFT));
-        final BigDecimal flights = new BigDecimal(120d);
-        miscDetailsTable.addCell(createTableCell(flights, ALIGN_RIGHT));
-
         miscDetailsTable.addCell(createTableCell("Hotel for myself, Daan, Bo & Lisa Aitken at St Georges Hill", ALIGN_LEFT));
         final BigDecimal hotel = new BigDecimal(723.80d);
         miscDetailsTable.addCell(createTableCell(hotel, ALIGN_RIGHT));
 
-        return gSuiteFees.add(myHermesCosts).add(egcc).add(abingdon).add(flights).add(hotel);
+        return gSuiteFees.add(myHermesCosts).add(egcc).add(abingdon).add(hotel);
     }
 }
