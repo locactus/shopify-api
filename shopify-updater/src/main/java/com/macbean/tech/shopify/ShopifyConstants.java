@@ -11,14 +11,17 @@ public class ShopifyConstants {
     static final String JSON_CONTENT_TYPE = "application/json";
     static final String HTTPS_PREFIX = "https://";
     static final String JSON_SUFFIX = ".json";
-    static final String GET_PRODUCTS = "/admin/products" + JSON_SUFFIX;
-    static final String GET_ORDERS = "/admin/orders" + JSON_SUFFIX;
-    static final String PUT_VARIANT = "/admin/variants/";
+    static final String ADMIN = "/admin";
+    static final String GET_PRODUCTS = ADMIN + "/products" + JSON_SUFFIX;
+    static final String GET_ORDERS = ADMIN + "/orders" + JSON_SUFFIX;
+    static final String GET_CUSTOMERS = ADMIN + "/customers" + JSON_SUFFIX;
+    static final String PUT_VARIANT = ADMIN + "/variants/";
 
     static final String ORDER_STATUS_ANY = "any";
     static final String ORDER_FINANCIAL_STATUS_PAID = "paid";
     static final long ORDER_LIMIT_MAX = 250;
     static final long PRODUCT_LIMIT_MAX = 250;
+    static final long CUSTOMER_LIMIT_MAX = 250;
 
     static final ShopifyInstance UK_INSTANCE = new ShopifyInstance(
             "",

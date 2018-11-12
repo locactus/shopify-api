@@ -1,10 +1,7 @@
 package com.macbean.tech.shopify;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.macbean.tech.shopify.model.Order;
-import com.macbean.tech.shopify.model.Orders;
-import com.macbean.tech.shopify.model.Product;
-import com.macbean.tech.shopify.model.Products;
+import com.macbean.tech.shopify.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,15 +13,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.macbean.tech.shopify.ShopifyConstants.ORDER_LIMIT_MAX;
-import static com.macbean.tech.shopify.ShopifyConstants.PRODUCT_LIMIT_MAX;
-import static com.macbean.tech.shopify.ShopifyConstants.UK_INSTANCE;
+import static com.macbean.tech.shopify.ShopifyConstants.*;
 
 public class ShopifyClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShopifyClient.class);
 
     private ShopifyHttpClient shopifyHttpClient = new ShopifyHttpClient(UK_INSTANCE);
+
+    public Customers getAllCustomers() throws IOException {
+        final ObjectMapper jsonMapper = new ObjectMapper();
+        long pageCount = 1;
+        final Customers allCustomers = new Customers();
+
+        InputStream jsonInputstream = shopifyHttpClient.getCustomersJson(pageCount);
+        Customers currentCustomers = jsonMapper.readValue(jsonInputstream, Customers.class);
+        allCustomers.setCustomers(currentCustomers.getCustomers());
+
+        while (currentCustomers.getCustomers().size() == CUSTOMER_LIMIT_MAX) {
+            pageCount++;
+            jsonInputstream = shopifyHttpClient.getCustomersJson(pageCount);
+            currentCustomers = jsonMapper.readValue(jsonInputstream, Customers.class);
+            allCustomers.getCustomers().addAll(currentCustomers.getCustomers());
+        }
+        return allCustomers;
+    }
 
     public Products getAllProducts() throws IOException {
         final ObjectMapper jsonMapper = new ObjectMapper();
@@ -41,9 +54,6 @@ public class ShopifyClient {
             currentProducts = jsonMapper.readValue(jsonInputstream, Products.class);
             allProducts.getProducts().addAll(currentProducts.getProducts());
         }
-
-        LOGGER.debug("***** All Products *****");
-        allProducts.getProducts().stream().map(Product::getTitle).sorted().forEach(LOGGER::debug);
         return allProducts;
     }
 
@@ -58,8 +68,6 @@ public class ShopifyClient {
                 result.put(product.getProductType(), typeProducts);
             }
         }
-        LOGGER.debug("***** Product Types *****");
-        result.keySet().stream().sorted().forEach(LOGGER::debug);
         return result;
     }
 
@@ -82,9 +90,6 @@ public class ShopifyClient {
             currentOrders = jsonMapper.readValue(jsonInputstream, Orders.class);
             allOrders.getOrders().addAll(currentOrders.getOrders());
         }
-
-        LOGGER.debug("***** All Orders *****");
-        allOrders.getOrders().stream().map(Order::getName).sorted().forEach(LOGGER::debug);
         return allOrders;
     }
 }

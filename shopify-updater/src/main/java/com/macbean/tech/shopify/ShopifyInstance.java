@@ -22,12 +22,15 @@ public class ShopifyInstance {
     }
 
     public String getGetProductsUrl(String limit, String page) {
+        return  getBaseUrl() + GET_PRODUCTS +
+                "?limit=" + limit +
+                "&page=" + page;
+    }
 
-        final StringBuilder getProductsUrl = new StringBuilder(getBaseUrl()).append(GET_PRODUCTS)
-                .append("?limit=").append(limit)
-                .append("&page=").append(page);
-
-        return getProductsUrl.toString();
+    public String getGetCustomersUrl(String limit, String page) {
+        return getBaseUrl() + GET_CUSTOMERS +
+                "?limit=" + limit +
+                "&page=" + page;
     }
 
     public String getGetOrdersUrl(String status, String financialStatus, String limit, String page, ZonedDateTime from, ZonedDateTime to) {

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -29,6 +30,14 @@ public class ShopifyClientTest {
         assertNotNull(products);
         assertNotNull(products.getProducts());
         assertThat(products.getProducts(), hasSize(NO_OF_PRODUCTS));
+    }
+
+    @Test
+    public void testGetCustomers() throws Exception {
+        final Customers customers = testInstance.getAllCustomers();
+        assertNotNull(customers);
+        assertNotNull(customers.getCustomers());
+        assertThat(customers.getCustomers().size(), greaterThan(0));
     }
 
     @Test
