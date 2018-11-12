@@ -21,7 +21,7 @@ public class ShopifyInstanceTest {
 
     @Test
     public void getGetProductsUrl() {
-        assertThat(testInstance.getGetProductsUrl(),
-                is("https://username;password@test.shopify.com/admin/products.json"));
+        assertThat(testInstance.getGetProductsUrl("50", "1"),
+                is("https://username;password@test.shopify.com/admin/products.json?limit=50&page=1"));
     }
 }

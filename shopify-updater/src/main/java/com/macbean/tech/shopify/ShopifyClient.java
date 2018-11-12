@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.macbean.tech.shopify.ShopifyConstants.ORDER_LIMIT_MAX;
+import static com.macbean.tech.shopify.ShopifyConstants.PRODUCT_LIMIT_MAX;
 import static com.macbean.tech.shopify.ShopifyConstants.UK_INSTANCE;
 
 public class ShopifyClient {
@@ -27,21 +28,35 @@ public class ShopifyClient {
 
     public Products getAllProducts() throws IOException {
         final ObjectMapper jsonMapper = new ObjectMapper();
-        final InputStream jsonInputstream = shopifyHttpClient.getProductsJson();
-        Products products = jsonMapper.readValue(jsonInputstream, Products.class);
+        long pageCount = 1;
+        final Products allProducts = new Products();
+
+        InputStream jsonInputstream = shopifyHttpClient.getProductsJson(pageCount);
+        Products currentProducts = jsonMapper.readValue(jsonInputstream, Products.class);
+        allProducts.setProducts(currentProducts.getProducts());
+
+        while (currentProducts.getProducts().size() == PRODUCT_LIMIT_MAX) {
+            pageCount++;
+            jsonInputstream = shopifyHttpClient.getProductsJson(pageCount);
+            currentProducts = jsonMapper.readValue(jsonInputstream, Products.class);
+            allProducts.getProducts().addAll(currentProducts.getProducts());
+        }
+
         LOGGER.debug("***** All Products *****");
-        products.getProducts().stream().map(Product::getTitle).sorted().forEach(LOGGER::debug);
-        return products;
+        allProducts.getProducts().stream().map(Product::getTitle).sorted().forEach(LOGGER::debug);
+        return allProducts;
     }
 
     public Map<String, List<Product>> getAllProductsByType() throws IOException {
         final Map<String, List<Product>> result = new HashMap<>();
         final Products allProducts = getAllProducts();
         for (final Product product : allProducts.getProducts()) {
-            List<Product> typeProducts = result.get(product.getProductType());
-            if (typeProducts == null) typeProducts = new ArrayList<>();
-            typeProducts.add(product);
-            result.put(product.getProductType(), typeProducts);
+            if (product.getProductType() != null && product.getProductType().length() != 0) {
+                List<Product> typeProducts = result.get(product.getProductType());
+                if (typeProducts == null) typeProducts = new ArrayList<>();
+                typeProducts.add(product);
+                result.put(product.getProductType(), typeProducts);
+            }
         }
         LOGGER.debug("***** Product Types *****");
         result.keySet().stream().sorted().forEach(LOGGER::debug);

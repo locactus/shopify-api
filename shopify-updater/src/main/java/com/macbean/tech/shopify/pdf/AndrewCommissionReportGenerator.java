@@ -212,21 +212,9 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
         miscDetailsTable.addCell(createTableCell(gSuiteFees, ALIGN_RIGHT));
 
         miscDetailsTable.addCell(createTableCell("MyHermes Collections/Deliveries", ALIGN_LEFT));
-        final BigDecimal myHermesCosts = new BigDecimal(2.79d + 2.79d + 3.99d + 4.09d);
+        final BigDecimal myHermesCosts = new BigDecimal(3.99d + 3.99d + 3.99d);
         miscDetailsTable.addCell(createTableCell(myHermesCosts, ALIGN_RIGHT));
 
-        miscDetailsTable.addCell(createTableCell("Printing & courier costs for EGCC Teamwear (20 shirts)", ALIGN_LEFT));
-        final BigDecimal egcc = new BigDecimal(72d);
-        miscDetailsTable.addCell(createTableCell(egcc, ALIGN_RIGHT));
-
-        miscDetailsTable.addCell(createTableCell("Printing & courier costs for Abingdon Teamwear (23 shirts)", ALIGN_LEFT));
-        final BigDecimal abingdon = new BigDecimal(81d);
-        miscDetailsTable.addCell(createTableCell(egcc, ALIGN_RIGHT));
-
-        miscDetailsTable.addCell(createTableCell("Hotel for myself, Daan, Bo & Lisa Aitken at St Georges Hill", ALIGN_LEFT));
-        final BigDecimal hotel = new BigDecimal(723.80d);
-        miscDetailsTable.addCell(createTableCell(hotel, ALIGN_RIGHT));
-
-        return gSuiteFees.add(myHermesCosts).add(egcc).add(abingdon).add(hotel);
+        return gSuiteFees.add(myHermesCosts);
     }
 }

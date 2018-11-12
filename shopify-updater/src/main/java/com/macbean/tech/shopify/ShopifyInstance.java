@@ -21,8 +21,13 @@ public class ShopifyInstance {
         return getBaseUrl() + PUT_VARIANT + variantId + JSON_SUFFIX;
     }
 
-    public String getGetProductsUrl() {
-        return getBaseUrl() + GET_PRODUCTS;
+    public String getGetProductsUrl(String limit, String page) {
+
+        final StringBuilder getProductsUrl = new StringBuilder(getBaseUrl()).append(GET_PRODUCTS)
+                .append("?limit=").append(limit)
+                .append("&page=").append(page);
+
+        return getProductsUrl.toString();
     }
 
     public String getGetOrdersUrl(String status, String financialStatus, String limit, String page, ZonedDateTime from, ZonedDateTime to) {

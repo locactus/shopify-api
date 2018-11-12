@@ -42,8 +42,8 @@ public class ShopifyHttpClient {
         return get(url, JSON_CONTENT_TYPE);
     }
 
-    InputStream getProductsJson() throws IOException {
-        return get(shopifyInstance.getGetProductsUrl(), JSON_CONTENT_TYPE);
+    InputStream getProductsJson(long page) throws IOException {
+        return get(shopifyInstance.getGetProductsUrl(String.valueOf(PRODUCT_LIMIT_MAX), String.valueOf(page)), JSON_CONTENT_TYPE);
     }
 
     InputStream getOrdersJson(long page) throws IOException {

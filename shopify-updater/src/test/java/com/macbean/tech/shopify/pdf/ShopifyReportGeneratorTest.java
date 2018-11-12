@@ -44,4 +44,26 @@ public class ShopifyReportGeneratorTest {
         final String textFromPage = PdfTextExtractor.getTextFromPage(new PdfReader(reportBytes), 1);
         assertThat(textFromPage, containsString(testInstance.getTitle()));
     }
+
+    @Test
+    public void testCustomerSalesBreakdownFromPeriod() throws Exception {
+        final CustomerSalesReportGenerator testInstance = new CustomerSalesReportGenerator();
+
+        byte[] reportBytes = testInstance.generateReport(FROM, TO);
+        assertNotNull(reportBytes);
+
+        final String textFromPage = PdfTextExtractor.getTextFromPage(new PdfReader(reportBytes), 1);
+        assertThat(textFromPage, containsString(testInstance.getTitle()));
+    }
+
+    @Test
+    public void testProductReport() throws Exception {
+        final ProductReportGenerator testInstance = new ProductReportGenerator();
+
+        byte[] reportBytes = testInstance.generateReport(FROM, TO);
+        assertNotNull(reportBytes);
+
+        final String textFromPage = PdfTextExtractor.getTextFromPage(new PdfReader(reportBytes), 1);
+        assertThat(textFromPage, containsString(testInstance.getTitle()));
+    }
 }
