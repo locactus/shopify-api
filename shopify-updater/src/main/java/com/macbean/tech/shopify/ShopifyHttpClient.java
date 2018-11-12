@@ -1,8 +1,5 @@
 package com.macbean.tech.shopify;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,15 +7,11 @@ import java.io.OutputStreamWriter;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 import static com.macbean.tech.shopify.ShopifyConstants.*;
 
 public class ShopifyHttpClient {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ShopifyHttpClient.class);
 
     private ShopifyInstance shopifyInstance;
 
@@ -71,10 +64,6 @@ public class ShopifyHttpClient {
         connection.setDoOutput(true);
         connection.setRequestProperty(HTTP_CONTENT_TYPE_PROPERTY, JSON_CONTENT_TYPE);
         connection.setRequestProperty(HTTP_ACCEPT_PROPERTY, JSON_CONTENT_TYPE);
-        LOGGER.debug("***** SEND JSON *****");
-        LOGGER.debug(url);
-        LOGGER.debug(requestMethod);
-        LOGGER.debug(payload);
         final OutputStreamWriter outputStreamWriter = new OutputStreamWriter(connection.getOutputStream());
         outputStreamWriter.write(payload);
         outputStreamWriter.flush();

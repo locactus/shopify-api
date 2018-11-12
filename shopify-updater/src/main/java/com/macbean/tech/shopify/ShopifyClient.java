@@ -1,9 +1,10 @@
 package com.macbean.tech.shopify;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.macbean.tech.shopify.model.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.macbean.tech.shopify.model.Customers;
+import com.macbean.tech.shopify.model.Orders;
+import com.macbean.tech.shopify.model.Product;
+import com.macbean.tech.shopify.model.Products;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,8 +17,6 @@ import java.util.Map;
 import static com.macbean.tech.shopify.ShopifyConstants.*;
 
 public class ShopifyClient {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ShopifyClient.class);
 
     private ShopifyHttpClient shopifyHttpClient = new ShopifyHttpClient(UK_INSTANCE);
 
