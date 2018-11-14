@@ -5,6 +5,7 @@ import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
+import com.macbean.tech.shopify.ShopifyConstants;
 import com.macbean.tech.shopify.model.Order;
 import com.macbean.tech.shopify.model.Orders;
 
@@ -22,14 +23,6 @@ import static com.itextpdf.text.Element.ALIGN_LEFT;
 import static com.itextpdf.text.Element.ALIGN_RIGHT;
 
 public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator {
-
-    private static final String TRADE_TAG = "trade";
-    private static final String PLATINUM_TAG = "platinum";
-    private static final String GOLD_TAG = "gold";
-    private static final String AFFILIATE_TAG = "affiliate";
-
-    private static final String FREE_TAG = "free";
-    private static final String DIRECT_TAG = "direct";
 
     private Map<String, BoldTableTotals> totals = new HashMap<>(6);
 
@@ -59,62 +52,62 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
     void addContent() throws DocumentException, IOException {
         final Orders orders = shopifyClient.getAllOrders(from, to);
 
-        final PdfPTable tradeTable = getPricingGroupTable(TRADE_TAG);
-        final PdfPTable platinumTable = getPricingGroupTable(PLATINUM_TAG);
-        final PdfPTable goldTable = getPricingGroupTable(GOLD_TAG);
-        final PdfPTable affiliateTable = getPricingGroupTable(AFFILIATE_TAG);
-        final PdfPTable directTable = getPricingGroupTable(DIRECT_TAG);
-        final PdfPTable freeTable = getPricingGroupTable(FREE_TAG);
+        final PdfPTable tradeTable = getPricingGroupTable(ShopifyConstants.TRADE_TAG);
+        final PdfPTable platinumTable = getPricingGroupTable(ShopifyConstants.PLATINUM_TAG);
+        final PdfPTable goldTable = getPricingGroupTable(ShopifyConstants.GOLD_TAG);
+        final PdfPTable affiliateTable = getPricingGroupTable(ShopifyConstants.AFFILIATE_TAG);
+        final PdfPTable directTable = getPricingGroupTable(ShopifyConstants.DIRECT_TAG);
+        final PdfPTable freeTable = getPricingGroupTable(ShopifyConstants.FREE_TAG);
 
-        totals.put(TRADE_TAG, new BoldTableTotals());
-        totals.put(PLATINUM_TAG, new BoldTableTotals());
-        totals.put(GOLD_TAG, new BoldTableTotals());
-        totals.put(AFFILIATE_TAG, new BoldTableTotals());
-        totals.put(DIRECT_TAG, new BoldTableTotals());
-        totals.put(FREE_TAG, new BoldTableTotals());
+        totals.put(ShopifyConstants.TRADE_TAG, new BoldTableTotals());
+        totals.put(ShopifyConstants.PLATINUM_TAG, new BoldTableTotals());
+        totals.put(ShopifyConstants.GOLD_TAG, new BoldTableTotals());
+        totals.put(ShopifyConstants.AFFILIATE_TAG, new BoldTableTotals());
+        totals.put(ShopifyConstants.DIRECT_TAG, new BoldTableTotals());
+        totals.put(ShopifyConstants.FREE_TAG, new BoldTableTotals());
 
         for (Order order : orders.getOrders()) {
             if ("0.00".equals(order.getTotalPrice())) {
-                addOrderToTable(totals.get(FREE_TAG), freeTable, order);
+                addOrderToTable(totals.get(ShopifyConstants.FREE_TAG), freeTable, order);
             }
-            else if (order.getCustomer().getTags().contains(TRADE_TAG)) {
-                addOrderToTable(totals.get(TRADE_TAG), tradeTable, order);
+            else if (order.getCustomer().getTags().contains(ShopifyConstants.TRADE_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.TRADE_TAG), tradeTable, order);
             }
-            else if (order.getCustomer().getTags().contains(PLATINUM_TAG)) {
-                addOrderToTable(totals.get(PLATINUM_TAG), platinumTable, order);
+            else if (order.getCustomer().getTags().contains(ShopifyConstants.PLATINUM_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.PLATINUM_TAG), platinumTable, order);
             }
-            else if (order.getCustomer().getTags().contains(GOLD_TAG)) {
-                addOrderToTable(totals.get(GOLD_TAG), goldTable, order);
+            else if (order.getCustomer().getTags().contains(ShopifyConstants.GOLD_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.GOLD_TAG), goldTable, order);
             }
-            else if (order.getCustomer().getTags().contains(AFFILIATE_TAG)) {
-                addOrderToTable(totals.get(AFFILIATE_TAG), affiliateTable, order);
+            else if (order.getCustomer().getTags().contains(ShopifyConstants.AFFILIATE_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.AFFILIATE_TAG), affiliateTable, order);
             }
             else {
-                addOrderToTable(totals.get(DIRECT_TAG), directTable, order);
+                addOrderToTable(totals.get(ShopifyConstants.DIRECT_TAG), directTable, order);
             }
         }
 
-        addTotalRowToTable(totals.get(TRADE_TAG), tradeTable);
+        addTotalRowToTable(totals.get(ShopifyConstants.TRADE_TAG), tradeTable);
         document.add(tradeTable);
         document.newPage();
 
-        addTotalRowToTable(totals.get(PLATINUM_TAG), platinumTable);
+        addTotalRowToTable(totals.get(ShopifyConstants.PLATINUM_TAG), platinumTable);
         document.add(platinumTable);
         document.newPage();
 
-        addTotalRowToTable(totals.get(GOLD_TAG), goldTable);
+        addTotalRowToTable(totals.get(ShopifyConstants.GOLD_TAG), goldTable);
         document.add(goldTable);
         document.newPage();
 
-        addTotalRowToTable(totals.get(AFFILIATE_TAG), affiliateTable);
+        addTotalRowToTable(totals.get(ShopifyConstants.AFFILIATE_TAG), affiliateTable);
         document.add(affiliateTable);
         document.newPage();
 
-        addTotalRowToTable(totals.get(DIRECT_TAG), directTable);
+        addTotalRowToTable(totals.get(ShopifyConstants.DIRECT_TAG), directTable);
         document.add(directTable);
         document.newPage();
 
-        addTotalRowToTable(totals.get(FREE_TAG), freeTable);
+        addTotalRowToTable(totals.get(ShopifyConstants.FREE_TAG), freeTable);
         document.add(freeTable);
         document.newPage();
     }
@@ -213,12 +206,12 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         titleCell.setColspan(getSummaryTableHeaders().length);
         table.addCell(titleCell);
         addCellsToTable(table, getSummaryTableHeaders());
-        addCellsToTable(table, getSummaryCells(TRADE_TAG, totals.get(TRADE_TAG)));
-        addCellsToTable(table, getSummaryCells(PLATINUM_TAG, totals.get(PLATINUM_TAG)));
-        addCellsToTable(table, getSummaryCells(GOLD_TAG, totals.get(GOLD_TAG)));
-        addCellsToTable(table, getSummaryCells(AFFILIATE_TAG, totals.get(AFFILIATE_TAG)));
-        addCellsToTable(table, getSummaryCells(DIRECT_TAG, totals.get(DIRECT_TAG)));
-        addCellsToTable(table, getSummaryCells(FREE_TAG, totals.get(FREE_TAG)));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.TRADE_TAG, totals.get(ShopifyConstants.TRADE_TAG)));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.PLATINUM_TAG, totals.get(ShopifyConstants.PLATINUM_TAG)));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.GOLD_TAG, totals.get(ShopifyConstants.GOLD_TAG)));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.AFFILIATE_TAG, totals.get(ShopifyConstants.AFFILIATE_TAG)));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.DIRECT_TAG, totals.get(ShopifyConstants.DIRECT_TAG)));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.FREE_TAG, totals.get(ShopifyConstants.FREE_TAG)));
 
         addCellsToTable(table, createTableCell("TOTALS"));
         addCellsToTable(table, createTableCell(String.valueOf(overallTotals.getOrderCount()), ALIGN_CENTER));
