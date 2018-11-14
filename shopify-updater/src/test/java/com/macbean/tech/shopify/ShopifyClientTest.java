@@ -1,19 +1,18 @@
 package com.macbean.tech.shopify;
 
-import com.macbean.tech.shopify.model.*;
+import com.macbean.tech.shopify.model.Customers;
+import com.macbean.tech.shopify.model.Orders;
+import com.macbean.tech.shopify.model.Product;
+import com.macbean.tech.shopify.model.Products;
 import org.junit.Test;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 
 public class ShopifyClientTest {
