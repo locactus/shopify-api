@@ -1,10 +1,7 @@
 package com.macbean.tech.shopify;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.macbean.tech.shopify.model.Customers;
-import com.macbean.tech.shopify.model.Orders;
-import com.macbean.tech.shopify.model.Product;
-import com.macbean.tech.shopify.model.Products;
+import com.macbean.tech.shopify.model.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,5 +87,23 @@ public class ShopifyClient {
             allOrders.getOrders().addAll(currentOrders.getOrders());
         }
         return allOrders;
+    }
+
+    public InventoryItems getInventoryItems(String... inventoryItemIds) throws IOException {
+        final ObjectMapper jsonMapper = new ObjectMapper();
+        long pageCount = 1;
+        InventoryItems allInventoryItems = new InventoryItems();
+
+        InputStream jsonInputstream = shopifyHttpClient.getInventoryItems(pageCount, inventoryItemIds);
+        InventoryItems currentInventoryItems = jsonMapper.readValue(jsonInputstream, InventoryItems.class);
+        allInventoryItems.setInventoryItems(currentInventoryItems.getInventoryItems());
+
+        while (currentInventoryItems.getInventoryItems().size() == ORDER_LIMIT_MAX) {
+            pageCount++;
+            jsonInputstream = shopifyHttpClient.getInventoryItems(pageCount, inventoryItemIds);
+            currentInventoryItems = jsonMapper.readValue(jsonInputstream, InventoryItems.class);
+            allInventoryItems.setInventoryItems(currentInventoryItems.getInventoryItems());
+        }
+        return allInventoryItems;
     }
 }

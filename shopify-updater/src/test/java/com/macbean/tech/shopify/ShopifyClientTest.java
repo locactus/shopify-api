@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
@@ -23,6 +24,8 @@ public class ShopifyClientTest {
     private static final int NO_OF_PRODUCTS = 118;
     private static final int NO_OF_PRODUCT_TYPES = 20;
     private static final int NO_OF_ORDERS_IN_MAY_2018 = 92;
+
+    private static final String INVENTORY_ITEM_ID = "7515712487460";
 
     @Test
     public void testGetProducts() throws Exception {
@@ -53,6 +56,13 @@ public class ShopifyClientTest {
         final Orders orders = testInstance.getAllOrders();
         assertNotNull(orders);
         assertNotNull(orders.getOrders());
+    }
+
+    @Test
+    public void testGetInventoryItem() throws Exception {
+        final InventoryItems inventoryItems = testInstance.getInventoryItems(INVENTORY_ITEM_ID);
+        assertNotNull(inventoryItems);
+        assertNotNull(inventoryItems.getInventoryItems());
     }
 
     @Test

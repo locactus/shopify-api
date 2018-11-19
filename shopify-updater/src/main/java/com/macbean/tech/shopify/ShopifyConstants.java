@@ -24,6 +24,7 @@ public class ShopifyConstants {
     static final String GET_PRODUCTS = ADMIN + "/products" + JSON_SUFFIX;
     static final String GET_ORDERS = ADMIN + "/orders" + JSON_SUFFIX;
     static final String GET_CUSTOMERS = ADMIN + "/customers" + JSON_SUFFIX;
+    static final String GET_INVENTORY_ITEMS = ADMIN + "/inventory_items" + JSON_SUFFIX;
     static final String PUT_VARIANT = ADMIN + "/variants/";
 
     // RESOURCES

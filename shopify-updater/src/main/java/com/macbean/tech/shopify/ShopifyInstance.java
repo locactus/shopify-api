@@ -1,5 +1,7 @@
 package com.macbean.tech.shopify;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -31,6 +33,13 @@ public class ShopifyInstance {
         return getBaseUrl() + GET_CUSTOMERS +
                 "?limit=" + limit +
                 "&page=" + page;
+    }
+
+    public String getGetInventoryItemUrl(String limit, String page, String... inventoryItemIds) {
+        return  getBaseUrl() + GET_INVENTORY_ITEMS +
+                "?limit=" + limit +
+                "&page=" + page +
+                "&ids=" + StringUtils.join(inventoryItemIds, ',');
     }
 
     public String getGetOrdersUrl(String status, String financialStatus, String limit, String page, ZonedDateTime from, ZonedDateTime to) {
