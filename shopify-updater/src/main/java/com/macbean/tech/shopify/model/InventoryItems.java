@@ -12,22 +12,22 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "inventory_item"
+        "inventory_items"
 })
 public class InventoryItems {
 
-    @JsonProperty("inventory_item")
+    @JsonProperty("inventory_items")
     private List<InventoryItem> inventoryItems;
 
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("inventory_item")
+    @JsonProperty("inventory_items")
     public List<InventoryItem> getInventoryItems() {
         return inventoryItems;
     }
 
-    @JsonProperty("inventory_item")
+    @JsonProperty("inventory_items")
     public void setInventoryItems(List<InventoryItem> inventoryItems) {
         this.inventoryItems = inventoryItems;
     }

@@ -21,7 +21,7 @@ public class ShopifyClientTest {
 
     private ShopifyClient testInstance = new ShopifyClient();
 
-    private static final int NO_OF_PRODUCTS = 118;
+    private static final int NO_OF_PRODUCTS = 119;
     private static final int NO_OF_PRODUCT_TYPES = 20;
     private static final int NO_OF_ORDERS_IN_MAY_2018 = 92;
 
