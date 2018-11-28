@@ -89,7 +89,26 @@ public class ShopifyClient {
         return allOrders;
     }
 
-    public InventoryItems getInventoryItems(String... inventoryItemIds) throws IOException {
+    public InventoryItems getInventoryItems(List<String> inventoryItemIds) throws IOException {
+        int count = 0;
+        int newStartIndex = MAX_INVENTORY_ITEM_PARAMS * count;
+        int newEndIndex = newStartIndex + MAX_INVENTORY_ITEM_PARAMS;
+
+        List<String> currentSublist = inventoryItemIds.subList(newStartIndex,newEndIndex > inventoryItemIds.size() ? inventoryItemIds.size() : newEndIndex);
+        InventoryItems inventoryItems = getInventoryItems(currentSublist.toArray(new String[0]));
+
+        while (newEndIndex <= inventoryItemIds.size()) {
+            count++;
+            newStartIndex = MAX_INVENTORY_ITEM_PARAMS * count;
+            newEndIndex = newStartIndex + MAX_INVENTORY_ITEM_PARAMS;
+
+            currentSublist = inventoryItemIds.subList(newStartIndex, newEndIndex > inventoryItemIds.size() ? inventoryItemIds.size() : newEndIndex);
+            inventoryItems.getInventoryItems().addAll(getInventoryItems(currentSublist.toArray(new String[0])).getInventoryItems());
+        }
+        return inventoryItems;
+    }
+
+    private InventoryItems getInventoryItems(String... inventoryItemIds) throws IOException {
         final ObjectMapper jsonMapper = new ObjectMapper();
         long pageCount = 1;
         InventoryItems allInventoryItems = new InventoryItems();

@@ -60,7 +60,7 @@ public class ShopifyClientTest {
 
     @Test
     public void testGetInventoryItem() throws Exception {
-        final InventoryItems inventoryItems = testInstance.getInventoryItems(INVENTORY_ITEM_ID);
+        final InventoryItems inventoryItems = testInstance.getInventoryItems(asList(INVENTORY_ITEM_ID));
         assertNotNull(inventoryItems);
         assertNotNull(inventoryItems.getInventoryItems());
     }

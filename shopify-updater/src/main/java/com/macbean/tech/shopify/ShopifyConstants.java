@@ -36,6 +36,7 @@ public class ShopifyConstants {
     static final long ORDER_LIMIT_MAX = 250;
     static final long PRODUCT_LIMIT_MAX = 250;
     static final long CUSTOMER_LIMIT_MAX = 250;
+    static final int MAX_INVENTORY_ITEM_PARAMS = 99;
 
     // INSTANCE INFO
     static final ShopifyInstance UK_INSTANCE = new ShopifyInstance(

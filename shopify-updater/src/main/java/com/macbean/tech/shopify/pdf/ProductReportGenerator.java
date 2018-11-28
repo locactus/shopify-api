@@ -55,9 +55,8 @@ public class ProductReportGenerator extends AbstractShopifyReportGenerator {
 
         final Map<String, String> inventoryIdCosts = new HashMap<>();
 
-        //TODO this needs to be split into 100s
-        final InventoryItems inventoryItemsList = shopifyClient.getInventoryItems(inventoryIds.toArray(new String[0]));
-        
+        final InventoryItems inventoryItemsList = shopifyClient.getInventoryItems(inventoryIds);
+
         for (InventoryItem inventoryItem : inventoryItemsList.getInventoryItems()) {
             inventoryIdCosts.put(String.valueOf(inventoryItem.getId()), inventoryItem.getCost());
         }
