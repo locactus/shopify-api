@@ -78,6 +78,15 @@ public class ProductReportGenerator extends AbstractShopifyReportGenerator {
             tableHeaderCell.setColspan(productTable.getNumberOfColumns());
             addCellsToTable(productTable, tableHeaderCell);
 
+            addCellsToTable(productTable,
+                    createTableHeaderCell("Product Title"),
+                    createTableHeaderCell("Variant Name"),
+                    createTableHeaderCell("SKU"),
+                    createTableHeaderCell("Cost"),
+                    createTableHeaderCell("Price"),
+                    createTableHeaderCell("RRP")
+            );
+
             for (Product product : productsByType.get(productType)) {
 
                 for (Variant variant : product.getVariants()) {
