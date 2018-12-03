@@ -212,9 +212,13 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
         miscDetailsTable.addCell(createTableCell(gSuiteFees, ALIGN_RIGHT));
 
         miscDetailsTable.addCell(createTableCell("MyHermes Collections/Deliveries", ALIGN_LEFT));
-        final BigDecimal myHermesCosts = new BigDecimal(3.99d + 3.99d + 3.99d);
+        final BigDecimal myHermesCosts = new BigDecimal(3.99d + 3.99d + 3.99d + 2.79d + 3.99d + 2.79d + 3.29d);
         miscDetailsTable.addCell(createTableCell(myHermesCosts, ALIGN_RIGHT));
 
-        return gSuiteFees.add(myHermesCosts);
+        miscDetailsTable.addCell(createTableCell("Bulk Return to PackNed", ALIGN_LEFT));
+        final BigDecimal packNed = new BigDecimal(16.62d);
+        miscDetailsTable.addCell(createTableCell(packNed, ALIGN_RIGHT));
+
+        return gSuiteFees.add(myHermesCosts).add(packNed);
     }
 }

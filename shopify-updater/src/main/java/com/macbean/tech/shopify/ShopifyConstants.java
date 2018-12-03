@@ -24,6 +24,7 @@ public class ShopifyConstants {
     static final String GET_PRODUCTS = ADMIN + "/products" + JSON_SUFFIX;
     static final String GET_ORDERS = ADMIN + "/orders" + JSON_SUFFIX;
     static final String GET_CUSTOMERS = ADMIN + "/customers" + JSON_SUFFIX;
+    static final String GET_INVENTORY_ITEMS = ADMIN + "/inventory_items" + JSON_SUFFIX;
     static final String PUT_VARIANT = ADMIN + "/variants/";
 
     // RESOURCES
@@ -35,6 +36,7 @@ public class ShopifyConstants {
     static final long ORDER_LIMIT_MAX = 250;
     static final long PRODUCT_LIMIT_MAX = 250;
     static final long CUSTOMER_LIMIT_MAX = 250;
+    static final int MAX_INVENTORY_ITEM_PARAMS = 99;
 
     // INSTANCE INFO
     static final ShopifyInstance UK_INSTANCE = new ShopifyInstance(

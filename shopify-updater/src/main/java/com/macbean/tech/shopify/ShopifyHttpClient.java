@@ -53,6 +53,10 @@ public class ShopifyHttpClient {
                 String.valueOf(ORDER_LIMIT_MAX), String.valueOf(page), from, to), JSON_CONTENT_TYPE);
     }
 
+    InputStream getInventoryItems(long page, String... inventoryItemIds) throws IOException {
+        return get(shopifyInstance.getGetInventoryItemUrl(String.valueOf(ORDER_LIMIT_MAX), String.valueOf(page), inventoryItemIds), JSON_CONTENT_TYPE);
+    }
+
     public void putVariant(Long variantId, String requestMethod, String payload) throws IOException {
         putJson(shopifyInstance.getPutVariantUrl(variantId), requestMethod, payload);
     }

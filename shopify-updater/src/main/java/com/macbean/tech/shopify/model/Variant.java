@@ -76,6 +76,8 @@ public class Variant {
     private Long imageId;
     @JsonProperty("inventory_quantity")
     private Long inventoryQuantity;
+    @JsonProperty("inventory_item_id")
+    private String inventoryItemId;
     @JsonProperty("weight")
     private Long weight;
     @JsonProperty("weight_unit")
@@ -84,7 +86,6 @@ public class Variant {
     private Long oldInventoryQuantity;
     @JsonProperty("requires_shipping")
     private Boolean requiresShipping;
-
     @JsonProperty("id")
     public Long getId() {
         return id;
@@ -273,6 +274,16 @@ public class Variant {
     @JsonProperty("image_id")
     public void setImageId(Long imageId) {
         this.imageId = imageId;
+    }
+
+    @JsonProperty("inventory_item_id")
+    public String getInventoryItemId() {
+        return inventoryItemId;
+    }
+
+    @JsonProperty("inventory_item_id")
+    public void setInventoryItemId(String inventoryItemId) {
+        this.inventoryItemId = inventoryItemId;
     }
 
     @JsonProperty("inventory_quantity")
