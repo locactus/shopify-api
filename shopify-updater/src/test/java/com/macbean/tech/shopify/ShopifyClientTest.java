@@ -1,9 +1,6 @@
 package com.macbean.tech.shopify;
 
-import com.macbean.tech.shopify.model.Customers;
-import com.macbean.tech.shopify.model.Orders;
-import com.macbean.tech.shopify.model.Product;
-import com.macbean.tech.shopify.model.Products;
+import com.macbean.tech.shopify.model.*;
 import org.junit.Test;
 
 import java.time.ZoneId;
