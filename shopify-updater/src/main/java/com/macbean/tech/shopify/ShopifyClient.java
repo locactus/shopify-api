@@ -5,6 +5,7 @@ import com.macbean.tech.shopify.model.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.macbean.tech.shopify.ShopifyConstants.*;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class ShopifyClient {
 
@@ -124,5 +127,35 @@ public class ShopifyClient {
             allInventoryItems.setInventoryItems(currentInventoryItems.getInventoryItems());
         }
         return allInventoryItems;
+    }
+
+    public Map<String, BigDecimal> getAllInventoryIdCosts() throws IOException {
+        final Map<String, List<Product>> productsByType = getAllProductsByType();
+        return getInventoryIdCosts(productsByType);
+    }
+
+    public Map<String, BigDecimal> getInventoryIdCosts(Map<String, List<Product>> productsByType) throws IOException {
+
+        final List<String> inventoryIds = new ArrayList<>();
+
+        for (String productType : productsByType.keySet()) {
+            for (Product product : productsByType.get(productType)) {
+                for (Variant variant : product.getVariants()) {
+                    if (!isEmpty(variant.getInventoryItemId())) {
+                        inventoryIds.add(variant.getInventoryItemId());
+                    }
+                }
+            }
+        }
+
+        final Map<String, BigDecimal> inventoryIdCosts = new HashMap<>();
+
+        final InventoryItems inventoryItemsList = getInventoryItems(inventoryIds);
+
+        for (InventoryItem inventoryItem : inventoryItemsList.getInventoryItems()) {
+            inventoryIdCosts.put(String.valueOf(inventoryItem.getId()), isNotEmpty(inventoryItem.getCost()) ? new BigDecimal(inventoryItem.getCost()) : BigDecimal.ZERO);
+        }
+
+        return inventoryIdCosts;
     }
 }

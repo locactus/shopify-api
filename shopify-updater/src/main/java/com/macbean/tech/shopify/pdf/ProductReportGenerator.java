@@ -9,11 +9,14 @@ import com.macbean.tech.shopify.model.InventoryItem;
 import com.macbean.tech.shopify.model.InventoryItems;
 import com.macbean.tech.shopify.model.Product;
 import com.macbean.tech.shopify.model.Variant;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 import static com.itextpdf.text.Element.ALIGN_CENTER;
+import static com.itextpdf.text.Element.ALIGN_RIGHT;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class ProductReportGenerator extends AbstractShopifyReportGenerator {
@@ -41,34 +44,11 @@ public class ProductReportGenerator extends AbstractShopifyReportGenerator {
         document.add(getEyeLogo(75f,75f, ALIGN_CENTER));
     }
 
-    private Map<String, String> getInventoryIdCosts(Map<String, List<Product>> productsByType) throws IOException {
-        final List<String> inventoryIds = new ArrayList<>();
-        for (String productType : productsByType.keySet()) {
-            for (Product product : productsByType.get(productType)) {
-                for (Variant variant : product.getVariants()) {
-                    if (!isEmpty(variant.getInventoryItemId())) {
-                        inventoryIds.add(variant.getInventoryItemId());
-                    }
-                }
-            }
-        }
-
-        final Map<String, String> inventoryIdCosts = new HashMap<>();
-
-        final InventoryItems inventoryItemsList = shopifyClient.getInventoryItems(inventoryIds);
-
-        for (InventoryItem inventoryItem : inventoryItemsList.getInventoryItems()) {
-            inventoryIdCosts.put(String.valueOf(inventoryItem.getId()), inventoryItem.getCost());
-        }
-
-        return inventoryIdCosts;
-    }
-
     @Override
     void addContent() throws DocumentException, IOException {
         final Map<String, List<Product>> productsByType = shopifyClient.getAllProductsByType();
 
-        final Map<String, String> inventoryIdCosts = getInventoryIdCosts(productsByType);
+        final Map<String, BigDecimal> inventoryIdCosts = shopifyClient.getAllInventoryIdCosts();
 
         final PdfPTable productTable = createFullWidthTable(3,3,2,1,1,1);
 
@@ -90,7 +70,7 @@ public class ProductReportGenerator extends AbstractShopifyReportGenerator {
             for (Product product : productsByType.get(productType)) {
 
                 for (Variant variant : product.getVariants()) {
-                    String cost = "";
+                    BigDecimal cost = BigDecimal.ZERO;
                     if (!isEmpty(variant.getInventoryItemId())) {
                         cost = inventoryIdCosts.get(variant.getInventoryItemId());
                     }
@@ -98,9 +78,9 @@ public class ProductReportGenerator extends AbstractShopifyReportGenerator {
                             createTableCell(product.getTitle()),
                             createTableCell(DEFAULT_TITLE.equalsIgnoreCase(variant.getTitle()) ? NOT_APPLICABLE : variant.getTitle()),
                             createTableCell(variant.getSku()),
-                            createTableCell(cost),
-                            createTableCell(variant.getPrice()),
-                            createTableCell(variant.getCompareAtPrice())
+                            createTableCell(cost, ALIGN_RIGHT),
+                            createTableCell(StringUtils.isNotEmpty(variant.getPrice()) ? new BigDecimal(variant.getPrice()) : BigDecimal.ZERO, ALIGN_RIGHT),
+                            createTableCell(StringUtils.isNotEmpty(variant.getCompareAtPrice()) ? new BigDecimal(variant.getCompareAtPrice()) : BigDecimal.ZERO, ALIGN_RIGHT)
                     );
                 }
             }
