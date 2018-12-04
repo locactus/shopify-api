@@ -5,8 +5,6 @@ import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
-import com.macbean.tech.shopify.model.InventoryItem;
-import com.macbean.tech.shopify.model.InventoryItems;
 import com.macbean.tech.shopify.model.Product;
 import com.macbean.tech.shopify.model.Variant;
 import org.apache.commons.lang3.StringUtils;
@@ -48,7 +46,7 @@ public class ProductReportGenerator extends AbstractShopifyReportGenerator {
     void addContent() throws DocumentException, IOException {
         final Map<String, List<Product>> productsByType = shopifyClient.getAllProductsByType();
 
-        final Map<String, BigDecimal> inventoryIdCosts = shopifyClient.getAllInventoryIdCosts();
+        final Map<String, BigDecimal> inventoryIdCosts = shopifyClient.getAllCostsByInventoryId();
 
         final PdfPTable productTable = createFullWidthTable(3,3,2,1,1,1);
 

@@ -25,6 +25,7 @@ import static com.itextpdf.text.Element.ALIGN_RIGHT;
 public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator {
 
     private Map<String, BoldTableTotals> totals = new HashMap<>(6);
+    private  Map<Long, BigDecimal> allCostsByVariantId = new HashMap<>(100);
 
     private BoldTableTotals overallTotals = new BoldTableTotals();
 
@@ -50,6 +51,8 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
 
     @Override
     void addContent() throws DocumentException, IOException {
+        allCostsByVariantId = shopifyClient.getAllCostsByVariantId();
+
         final Orders orders = shopifyClient.getAllOrders(from, to);
 
         final PdfPTable tradeTable = getPricingGroupTable(ShopifyConstants.TRADE_TAG);
@@ -125,11 +128,13 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         headers.add(createTableHeaderCell("Tax"));
         headers.add(createTableHeaderCell("Shipping"));
         headers.add(createTableHeaderCell("Sales Amount"));
+        headers.add(createTableHeaderCell("Cost"));
+        headers.add(createTableHeaderCell("Profit"));
         return headers.toArray(new PdfPCell[0]);
     }
 
     private PdfPTable getPricingGroupTable(String name) {
-        final PdfPTable table = createFullWidthTable(2,6,6,2,5,5,3,3,3,3,3);
+        final PdfPTable table = createFullWidthTable(2,6,6,2,5,5,3,3,3,3,3,3,3);
         table.setWidthPercentage(100f);
         final PdfPCell titleCell = createTableHeaderCell(name.toUpperCase() + " SALES", ALIGN_CENTER);
         titleCell.setColspan(getPricingTableHeaders().length);
@@ -140,7 +145,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
 
     private void addTotalRowToTable(BoldTableTotals totals, PdfPTable table) {
         final PdfPCell titleCell = createTableCell("TOTALS", ALIGN_LEFT);
-        titleCell.setColspan(getPricingTableHeaders().length - 5);
+        titleCell.setColspan(getPricingTableHeaders().length - 7);
         table.addCell(titleCell);
 
         final PdfPCell discountCell = createTableCell(totals.getDiscountTotal(), ALIGN_RIGHT);
@@ -157,9 +162,15 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
 
         final PdfPCell totalCell = createTableCell(totals.getSalesTotal(), ALIGN_RIGHT);
         table.addCell(totalCell);
+
+        final PdfPCell costCell = createTableCell(totals.getCostTotal(), ALIGN_RIGHT);
+        table.addCell(costCell);
+
+        final PdfPCell profitCell = createTableCell(totals.getProfitTotal(), ALIGN_RIGHT);
+        table.addCell(profitCell);
     }
 
-    private BigDecimal addOrderToTable(BoldTableTotals tableTotals, PdfPTable table, Order order) {
+    private BigDecimal addOrderToTable(BoldTableTotals tableTotals, PdfPTable table, Order order) throws IOException {
         tableTotals.addOrder();
         table.addCell(createTableCell(order.getName()));
 
@@ -196,11 +207,19 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         tableTotals.addSales(salesAmount);
         table.addCell(createTableCell(salesAmount, ALIGN_RIGHT));
 
+        final BigDecimal totalOrderCost = shopifyClient.calculateTotalOrderCost(order, allCostsByVariantId);
+        tableTotals.addCost(totalOrderCost);
+        table.addCell(createTableCell(totalOrderCost, ALIGN_RIGHT));
+
+        final BigDecimal totalOrderProfit = salesAmount.subtract(totalOrderCost);
+        tableTotals.addProfit(totalOrderProfit);
+        table.addCell(createTableCell(totalOrderProfit, ALIGN_RIGHT));
+
         return salesAmount;
     }
 
     private PdfPTable getSummaryTable() {
-        final PdfPTable table = createFullWidthTable(7);
+        final PdfPTable table = createFullWidthTable(9);
         table.setWidthPercentage(100f);
         final PdfPCell titleCell = createTableHeaderCell("SALES BREAKDOWN SUMMARY", ALIGN_CENTER);
         titleCell.setColspan(getSummaryTableHeaders().length);
@@ -220,6 +239,8 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         addCellsToTable(table, createTableCell(overallTotals.getTaxTotal(), ALIGN_RIGHT));
         addCellsToTable(table, createTableCell(overallTotals.getShippingTotal(), ALIGN_RIGHT));
         addCellsToTable(table, createTableCell(overallTotals.getSalesTotal(), ALIGN_RIGHT));
+        addCellsToTable(table, createTableCell(overallTotals.getCostTotal(), ALIGN_RIGHT));
+        addCellsToTable(table, createTableCell(overallTotals.getProfitTotal(), ALIGN_RIGHT));
         return table;
     }
 
@@ -232,6 +253,8 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         headers.add(createTableHeaderCell("Tax"));
         headers.add(createTableHeaderCell("Shipping"));
         headers.add(createTableHeaderCell("Sales Amount"));
+        headers.add(createTableHeaderCell("Total Cost"));
+        headers.add(createTableHeaderCell("Total Profit"));
         return headers.toArray(new PdfPCell[0]);
     }
 
@@ -257,6 +280,12 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         overallTotals.addSales(tableTotals.getSalesTotal());
         summaryCells.add(createTableCell(tableTotals.getSalesTotal(), ALIGN_RIGHT));
 
+        overallTotals.addCost(tableTotals.getCostTotal());
+        summaryCells.add(createTableCell(tableTotals.getCostTotal(), ALIGN_RIGHT));
+
+        overallTotals.addProfit(tableTotals.getProfitTotal());
+        summaryCells.add(createTableCell(tableTotals.getProfitTotal(), ALIGN_RIGHT));
+
         return summaryCells.toArray(new PdfPCell[0]);
     }
 
@@ -274,6 +303,8 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         BigDecimal discountTotal = BigDecimal.ZERO;
         BigDecimal taxTotal = BigDecimal.ZERO;
         BigDecimal shippingTotal = BigDecimal.ZERO;
+        BigDecimal costTotal = BigDecimal.ZERO;
+        BigDecimal profitTotal = BigDecimal.ZERO;
 
         BigDecimal getSalesTotal() {
             return salesTotal;
@@ -325,6 +356,22 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
 
         void addOrders(int orderCount) {
             this.orderCount = this.orderCount + orderCount;
+        }
+
+        public BigDecimal getCostTotal() {
+            return costTotal;
+        }
+
+        public void addCost(BigDecimal cost) {
+            this.costTotal = costTotal.add(cost);
+        }
+
+        public BigDecimal getProfitTotal() {
+            return profitTotal;
+        }
+
+        public void addProfit(BigDecimal profit) {
+            this.profitTotal = profitTotal.add(profit);
         }
     }
 }

@@ -129,13 +129,12 @@ public class ShopifyClient {
         return allInventoryItems;
     }
 
-    public Map<String, BigDecimal> getAllInventoryIdCosts() throws IOException {
+    public Map<String, BigDecimal> getAllCostsByInventoryId() throws IOException {
         final Map<String, List<Product>> productsByType = getAllProductsByType();
-        return getInventoryIdCosts(productsByType);
+        return getCostsByInventoryId(productsByType);
     }
 
-    public Map<String, BigDecimal> getInventoryIdCosts(Map<String, List<Product>> productsByType) throws IOException {
-
+    public Map<String, BigDecimal> getCostsByInventoryId(Map<String, List<Product>> productsByType) throws IOException {
         final List<String> inventoryIds = new ArrayList<>();
 
         for (String productType : productsByType.keySet()) {
@@ -148,14 +147,60 @@ public class ShopifyClient {
             }
         }
 
-        final Map<String, BigDecimal> inventoryIdCosts = new HashMap<>();
+        final Map<String, BigDecimal> costsByInventoryId = new HashMap<>();
 
         final InventoryItems inventoryItemsList = getInventoryItems(inventoryIds);
 
         for (InventoryItem inventoryItem : inventoryItemsList.getInventoryItems()) {
-            inventoryIdCosts.put(String.valueOf(inventoryItem.getId()), isNotEmpty(inventoryItem.getCost()) ? new BigDecimal(inventoryItem.getCost()) : BigDecimal.ZERO);
+            costsByInventoryId.put(String.valueOf(inventoryItem.getId()), isNotEmpty(inventoryItem.getCost()) ? new BigDecimal(inventoryItem.getCost()) : BigDecimal.ZERO);
         }
 
-        return inventoryIdCosts;
+        return costsByInventoryId;
+    }
+
+    public Map<Long, BigDecimal> getAllCostsByVariantId() throws IOException {
+        final Map<String, List<Product>> productsByType = getAllProductsByType();
+        return getCostsByVariantId(productsByType);
+    }
+
+    public Map<Long, BigDecimal> getCostsByVariantId(Map<String, List<Product>> productsByType) throws IOException {
+        final List<String> inventoryIds = new ArrayList<>();
+        final Map<String, Long> inventoryIdsByVariantId = new HashMap<>();
+
+        for (String productType : productsByType.keySet()) {
+            for (Product product : productsByType.get(productType)) {
+                for (Variant variant : product.getVariants()) {
+                    if (!isEmpty(variant.getInventoryItemId())) {
+                        inventoryIds.add(variant.getInventoryItemId());
+                        inventoryIdsByVariantId.put(variant.getInventoryItemId(), variant.getId());
+                    }
+                }
+            }
+        }
+
+        final Map<Long, BigDecimal> costsByVariantId = new HashMap<>();
+
+        final InventoryItems inventoryItemsList = getInventoryItems(inventoryIds);
+
+        for (InventoryItem inventoryItem : inventoryItemsList.getInventoryItems()) {
+            costsByVariantId.put(inventoryIdsByVariantId.get(String.valueOf(inventoryItem.getId())), isNotEmpty(inventoryItem.getCost()) ? new BigDecimal(inventoryItem.getCost()) : BigDecimal.ZERO);
+        }
+
+        return costsByVariantId;
+    }
+
+    public BigDecimal calculateTotalOrderCost(Order order) throws IOException {
+        final Map<Long, BigDecimal> allCostsByVariantId = getAllCostsByVariantId();
+        return calculateTotalOrderCost(order, allCostsByVariantId);
+    }
+
+    public BigDecimal calculateTotalOrderCost(Order order, Map<Long, BigDecimal> allCostsByVariantId) throws IOException {
+        BigDecimal totalCost = BigDecimal.ZERO;
+
+        for (LineItem lineItem : order.getLineItems()) {
+            totalCost = totalCost.add(allCostsByVariantId.get(lineItem.getVariantId()));
+        }
+
+        return totalCost;
     }
 }
