@@ -198,7 +198,13 @@ public class ShopifyClient {
         BigDecimal totalCost = BigDecimal.ZERO;
 
         for (LineItem lineItem : order.getLineItems()) {
-            totalCost = totalCost.add(allCostsByVariantId.get(lineItem.getVariantId()));
+            final BigDecimal costForVariantId = allCostsByVariantId.get(lineItem.getVariantId());
+            if (costForVariantId != null) {
+                totalCost = totalCost.add(costForVariantId);
+            }
+            else {
+                System.out.println("No cost found for :" + lineItem.getName() + " with variant id: " + lineItem.getVariantId());
+            }
         }
 
         return totalCost;

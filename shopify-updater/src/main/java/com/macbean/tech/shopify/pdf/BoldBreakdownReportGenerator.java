@@ -134,7 +134,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
     }
 
     private PdfPTable getPricingGroupTable(String name) {
-        final PdfPTable table = createFullWidthTable(2,6,6,2,5,5,3,3,3,3,3,3,3);
+        final PdfPTable table = createFullWidthTable(3,6,7,2,5,5,4,4,4,4,4,4,4);
         table.setWidthPercentage(100f);
         final PdfPCell titleCell = createTableHeaderCell(name.toUpperCase() + " SALES", ALIGN_CENTER);
         titleCell.setColspan(getPricingTableHeaders().length);
