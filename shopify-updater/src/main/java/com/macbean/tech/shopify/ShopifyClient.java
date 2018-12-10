@@ -200,7 +200,7 @@ public class ShopifyClient {
         for (LineItem lineItem : order.getLineItems()) {
             final BigDecimal costForVariantId = allCostsByVariantId.get(lineItem.getVariantId());
             if (costForVariantId != null) {
-                totalCost = totalCost.add(costForVariantId);
+                totalCost = totalCost.add(costForVariantId.multiply(new BigDecimal(lineItem.getQuantity())));
             }
             else {
                 System.out.println("No cost found for :" + lineItem.getName() + " with variant id: " + lineItem.getVariantId());
