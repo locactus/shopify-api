@@ -6,6 +6,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.macbean.tech.shopify.ShopifyConstants;
+import com.macbean.tech.shopify.model.DiscountApplications;
 import com.macbean.tech.shopify.model.Order;
 import com.macbean.tech.shopify.model.Orders;
 
@@ -188,6 +189,8 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         tableTotals.addDiscount(discount);
         table.addCell(createTableCell(discount, ALIGN_RIGHT));
 
+        final List<DiscountApplications> discountApplications = order.getDiscountApplications();
+
         final BigDecimal totalPrice = new BigDecimal(order.getTotalPrice());
         tableTotals.addOrderTotal(totalPrice);
         table.addCell(createTableCell(totalPrice, ALIGN_RIGHT));
@@ -211,7 +214,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         tableTotals.addCost(totalOrderCost);
         table.addCell(createTableCell(totalOrderCost, ALIGN_RIGHT));
 
-        final BigDecimal totalOrderProfit = salesAmount.subtract(totalOrderCost);
+        final BigDecimal totalOrderProfit = salesAmount.signum() == 0 ? BigDecimal.ZERO : salesAmount.subtract(totalOrderCost);
         tableTotals.addProfit(totalOrderProfit);
         table.addCell(createTableCell(totalOrderProfit, ALIGN_RIGHT));
 

@@ -160,7 +160,7 @@ public class Order {
     @JsonProperty("order_number")
     private Long orderNumber;
     @JsonProperty("discount_applications")
-    private List<Object> discountApplications = null;
+    private List<DiscountApplications> discountApplications = null;
     @JsonProperty("discount_codes")
     private List<Object> discountCodes = null;
     @JsonProperty("note_attributes")
@@ -625,12 +625,12 @@ public class Order {
     }
 
     @JsonProperty("discount_applications")
-    public List<Object> getDiscountApplications() {
+    public List<DiscountApplications> getDiscountApplications() {
         return discountApplications;
     }
 
     @JsonProperty("discount_applications")
-    public void setDiscountApplications(List<Object> discountApplications) {
+    public void setDiscountApplications(List<DiscountApplications> discountApplications) {
         this.discountApplications = discountApplications;
     }
 
