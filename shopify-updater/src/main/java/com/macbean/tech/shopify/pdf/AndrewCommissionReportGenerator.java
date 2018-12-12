@@ -145,7 +145,7 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
                 final BigDecimal commissionRate = getCommissionRate(order.getShippingAddress().getCountryCode());
                 commissionBreakdownTable.addCell(createTableCell(commissionRate.toString(), ALIGN_RIGHT));
 
-                final BigDecimal commissionPayable  = salesAmount.multiply(commissionRate.divide(BigDecimal.valueOf(100)));
+                final BigDecimal commissionPayable  = calculateCommission(salesAmount, commissionRate);
                 totalCommissionDue = totalCommissionDue.add(commissionPayable);
                 commissionBreakdownTable.addCell(createTableCell(commissionPayable, ALIGN_RIGHT));
             }
@@ -164,7 +164,16 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
         document.add(commissionBreakdownTable);
     }
 
-    private BigDecimal getCommissionRate(String countryCode) {
+    public static BigDecimal calculateCommission(BigDecimal salesAmount, String countryCode) {
+        final BigDecimal commissionRate = getCommissionRate(countryCode);
+        return calculateCommission(salesAmount, commissionRate);
+    }
+
+    public static BigDecimal calculateCommission(BigDecimal salesAmount, BigDecimal commissionRate) {
+        return salesAmount.multiply(commissionRate.divide(BigDecimal.valueOf(100)));
+    }
+
+    public static BigDecimal getCommissionRate(String countryCode) {
         if (countryCode.equalsIgnoreCase(UK) || countryCode.equalsIgnoreCase(IRELAND)) {
             return BigDecimal.valueOf(15);
         }
