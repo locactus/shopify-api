@@ -8,19 +8,21 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.macbean.tech.shopify.ShopifyConstants;
 import com.macbean.tech.shopify.model.Customer;
 import com.macbean.tech.shopify.model.Customers;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.itextpdf.text.Element.ALIGN_CENTER;
 import static com.itextpdf.text.Element.ALIGN_RIGHT;
 
 public class CustomerSalesReportGenerator extends AbstractShopifyReportGenerator {
+
+    private Map<String, BigDecimal> minSalesAmountByTag = new HashMap<>();
+    private Map<String, Set<String>> underPerformingEmailAddressesByTag = new HashMap<>();
 
     @Override
     Rectangle getPageSize() {
@@ -46,7 +48,7 @@ public class CustomerSalesReportGenerator extends AbstractShopifyReportGenerator
     void addContent() throws DocumentException, IOException {
         final Customers customers = shopifyClient.getAllCustomers();
 
-        final PdfPTable customersTable = createFullWidthTable(2,2,4,1,1,2,2);
+        final PdfPTable customersTable = createFullWidthTable(2,2,4,1,1,2,2,1);
 
         addCellsToTable(customersTable, getCustomerTableHeaders());
 
@@ -78,6 +80,14 @@ public class CustomerSalesReportGenerator extends AbstractShopifyReportGenerator
                     tag = ShopifyConstants.DIRECT_TAG;
                 }
 
+                boolean flaggedForUnderperforming =
+                        (!customer.getTags().contains(ShopifyConstants.SPONSORSHIP_TAG) && !customer.getTags().contains(ShopifyConstants.PSA_PLAYER_TAG)) &&
+                                isCustomerUnderperforming(new BigDecimal(customer.getTotalSpent()), tag);
+
+                if (flaggedForUnderperforming) {
+                    addEmailToUnderPerformingList(customer.getEmail(), tag);
+                }
+
                 addCellsToTable(customersTable,
                         createTableCell(customer.getFirstName()),
                         createTableCell(customer.getLastName()),
@@ -85,7 +95,8 @@ public class CustomerSalesReportGenerator extends AbstractShopifyReportGenerator
                         createTableCell(tag, ALIGN_CENTER),
                         createTableCell(String.valueOf(customer.getOrdersCount()), ALIGN_CENTER),
                         createTableCell(new BigDecimal(customer.getTotalSpent()), ALIGN_RIGHT),
-                        createTableCell(new BigDecimal(customer.getTotalSpent()).divide(BigDecimal.valueOf(customer.getOrdersCount()), RoundingMode.HALF_UP), ALIGN_RIGHT)
+                        createTableCell(new BigDecimal(customer.getTotalSpent()).divide(BigDecimal.valueOf(customer.getOrdersCount()), RoundingMode.HALF_UP), ALIGN_RIGHT),
+                        createTableCell(flaggedForUnderperforming ? "Yes" : "No", ALIGN_CENTER)
                 );
             }
         }
@@ -102,11 +113,37 @@ public class CustomerSalesReportGenerator extends AbstractShopifyReportGenerator
         headers.add(createTableHeaderCell("Orders Count"));
         headers.add(createTableHeaderCell("Total Spend"));
         headers.add(createTableHeaderCell("Average Spend"));
+        headers.add(createTableHeaderCell("Flagged"));
         return headers.toArray(new PdfPCell[0]);
     }
 
     @Override
     void addFooter() throws DocumentException, IOException {
+        for (String tag : underPerformingEmailAddressesByTag.keySet()) {
+            System.out.println(tag + " (" + minSalesAmountByTag.get(tag).toPlainString() + ")");
+            String authorString = String.join(",", underPerformingEmailAddressesByTag.get(tag));
+            System.out.println(authorString);
+        }
+    }
 
+    private boolean isCustomerUnderperforming(BigDecimal salesAmount, String tag) {
+        if (minSalesAmountByTag.isEmpty()) {
+            minSalesAmountByTag.put(ShopifyConstants.TRADE_TAG, new BigDecimal(2500));
+            minSalesAmountByTag.put(ShopifyConstants.PLATINUM_TAG, new BigDecimal(1000));
+            minSalesAmountByTag.put(ShopifyConstants.GOLD_TAG, new BigDecimal(500));
+        }
+        if (!minSalesAmountByTag.containsKey(tag)) {
+            return false;
+        }
+        return salesAmount.compareTo(minSalesAmountByTag.get(tag)) < 0;
+    }
+
+    private void addEmailToUnderPerformingList(String email, String tag) {
+        Set<String> emails = underPerformingEmailAddressesByTag.get(tag);
+        if (emails == null) {
+            emails = new HashSet<>();
+        }
+        emails.add(email);
+        underPerformingEmailAddressesByTag.put(tag, emails);
     }
 }
