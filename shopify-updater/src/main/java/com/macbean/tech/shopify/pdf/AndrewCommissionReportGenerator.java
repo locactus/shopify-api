@@ -115,7 +115,7 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
         BigDecimal totalSalesAmount = BigDecimal.ZERO;
 
         for (Order order : orders.getOrders()) {
-            if (!"0.00".equals(order.getTotalPrice())) {
+            if (!"0.00".equals(order.getTotalPrice()) && order.getShippingAddress() != null) {
                 commissionBreakdownTable.addCell(createTableCell(order.getName()));
 
                 final TemporalAccessor orderDate = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(order.getCreatedAt());

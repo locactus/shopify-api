@@ -71,23 +71,20 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         totals.put(ShopifyConstants.FREE_TAG, new BoldTableTotals());
 
         for (Order order : orders.getOrders()) {
-            if ("0.00".equals(order.getTotalPrice())) {
-                addOrderToTable(totals.get(ShopifyConstants.FREE_TAG), freeTable, order);
-            }
-            else if (order.getCustomer().getTags().contains(ShopifyConstants.TRADE_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.TRADE_TAG), tradeTable, order);
-            }
-            else if (order.getCustomer().getTags().contains(ShopifyConstants.PLATINUM_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.PLATINUM_TAG), platinumTable, order);
-            }
-            else if (order.getCustomer().getTags().contains(ShopifyConstants.GOLD_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.GOLD_TAG), goldTable, order);
-            }
-            else if (order.getCustomer().getTags().contains(ShopifyConstants.AFFILIATE_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.AFFILIATE_TAG), affiliateTable, order);
-            }
-            else {
-                addOrderToTable(totals.get(ShopifyConstants.DIRECT_TAG), directTable, order);
+            if (order.getShippingAddress() != null) {
+                if ("0.00".equals(order.getTotalPrice())) {
+                    addOrderToTable(totals.get(ShopifyConstants.FREE_TAG), freeTable, order);
+                } else if (order.getCustomer().getTags().contains(ShopifyConstants.TRADE_TAG)) {
+                    addOrderToTable(totals.get(ShopifyConstants.TRADE_TAG), tradeTable, order);
+                } else if (order.getCustomer().getTags().contains(ShopifyConstants.PLATINUM_TAG)) {
+                    addOrderToTable(totals.get(ShopifyConstants.PLATINUM_TAG), platinumTable, order);
+                } else if (order.getCustomer().getTags().contains(ShopifyConstants.GOLD_TAG)) {
+                    addOrderToTable(totals.get(ShopifyConstants.GOLD_TAG), goldTable, order);
+                } else if (order.getCustomer().getTags().contains(ShopifyConstants.AFFILIATE_TAG)) {
+                    addOrderToTable(totals.get(ShopifyConstants.AFFILIATE_TAG), affiliateTable, order);
+                } else {
+                    addOrderToTable(totals.get(ShopifyConstants.DIRECT_TAG), directTable, order);
+                }
             }
         }
 
