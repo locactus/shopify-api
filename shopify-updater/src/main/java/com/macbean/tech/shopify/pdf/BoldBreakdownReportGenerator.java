@@ -62,6 +62,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         final PdfPTable affiliateTable = getPricingGroupTable(ShopifyConstants.AFFILIATE_TAG);
         final PdfPTable directTable = getPricingGroupTable(ShopifyConstants.DIRECT_TAG);
         final PdfPTable freeTable = getPricingGroupTable(ShopifyConstants.FREE_TAG);
+        final PdfPTable digitalTable = getPricingGroupTable(ShopifyConstants.DIGITAL_TAG);
 
         totals.put(ShopifyConstants.TRADE_TAG, new BoldTableTotals());
         totals.put(ShopifyConstants.PLATINUM_TAG, new BoldTableTotals());
@@ -69,22 +70,23 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         totals.put(ShopifyConstants.AFFILIATE_TAG, new BoldTableTotals());
         totals.put(ShopifyConstants.DIRECT_TAG, new BoldTableTotals());
         totals.put(ShopifyConstants.FREE_TAG, new BoldTableTotals());
+        totals.put(ShopifyConstants.DIGITAL_TAG, new BoldTableTotals());
 
         for (Order order : orders.getOrders()) {
-            if (order.getShippingAddress() != null) {
-                if ("0.00".equals(order.getTotalPrice())) {
-                    addOrderToTable(totals.get(ShopifyConstants.FREE_TAG), freeTable, order);
-                } else if (order.getCustomer().getTags().contains(ShopifyConstants.TRADE_TAG)) {
-                    addOrderToTable(totals.get(ShopifyConstants.TRADE_TAG), tradeTable, order);
-                } else if (order.getCustomer().getTags().contains(ShopifyConstants.PLATINUM_TAG)) {
-                    addOrderToTable(totals.get(ShopifyConstants.PLATINUM_TAG), platinumTable, order);
-                } else if (order.getCustomer().getTags().contains(ShopifyConstants.GOLD_TAG)) {
-                    addOrderToTable(totals.get(ShopifyConstants.GOLD_TAG), goldTable, order);
-                } else if (order.getCustomer().getTags().contains(ShopifyConstants.AFFILIATE_TAG)) {
-                    addOrderToTable(totals.get(ShopifyConstants.AFFILIATE_TAG), affiliateTable, order);
-                } else {
-                    addOrderToTable(totals.get(ShopifyConstants.DIRECT_TAG), directTable, order);
-                }
+            if (order.getShippingAddress() == null) {
+                addOrderToTable(totals.get(ShopifyConstants.DIGITAL_TAG), digitalTable, order);
+            } else if ("0.00".equals(order.getTotalPrice())) {
+                addOrderToTable(totals.get(ShopifyConstants.FREE_TAG), freeTable, order);
+            } else if (order.getCustomer().getTags().contains(ShopifyConstants.TRADE_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.TRADE_TAG), tradeTable, order);
+            } else if (order.getCustomer().getTags().contains(ShopifyConstants.PLATINUM_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.PLATINUM_TAG), platinumTable, order);
+            } else if (order.getCustomer().getTags().contains(ShopifyConstants.GOLD_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.GOLD_TAG), goldTable, order);
+            } else if (order.getCustomer().getTags().contains(ShopifyConstants.AFFILIATE_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.AFFILIATE_TAG), affiliateTable, order);
+            } else {
+                addOrderToTable(totals.get(ShopifyConstants.DIRECT_TAG), directTable, order);
             }
         }
 
@@ -110,6 +112,10 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
 
         addTotalRowToTable(totals.get(ShopifyConstants.FREE_TAG), freeTable);
         document.add(freeTable);
+        document.newPage();
+
+        addTotalRowToTable(totals.get(ShopifyConstants.DIGITAL_TAG), digitalTable);
+        document.add(digitalTable);
         document.newPage();
     }
 
@@ -180,7 +186,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
 
         table.addCell(order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName());
 
-        table.addCell(order.getShippingAddress().getCountryCode());
+        table.addCell(order.getShippingAddress() != null ? order.getShippingAddress().getCountryCode() : ShopifyConstants.NO_COUNTRY_AVAILABLE);
 
         table.addCell(createTableTagCell(order.getTags()));
 
@@ -213,7 +219,8 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         tableTotals.addCost(totalOrderCost);
         table.addCell(createTableCell(totalOrderCost, ALIGN_RIGHT));
 
-        final BigDecimal orderCommission = AndrewCommissionReportGenerator.calculateCommission(salesAmount, order.getShippingAddress().getCountryCode());
+        final BigDecimal orderCommission = AndrewCommissionReportGenerator.calculateCommission(salesAmount,
+                order.getShippingAddress() != null ? order.getShippingAddress().getCountryCode() : ShopifyConstants.NO_COUNTRY_AVAILABLE);
         tableTotals.addCommission(orderCommission);
         table.addCell(createTableCell(orderCommission, ALIGN_RIGHT));
 
@@ -237,6 +244,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         addCellsToTable(table, getSummaryCells(ShopifyConstants.AFFILIATE_TAG, totals.get(ShopifyConstants.AFFILIATE_TAG)));
         addCellsToTable(table, getSummaryCells(ShopifyConstants.DIRECT_TAG, totals.get(ShopifyConstants.DIRECT_TAG)));
         addCellsToTable(table, getSummaryCells(ShopifyConstants.FREE_TAG, totals.get(ShopifyConstants.FREE_TAG)));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.DIGITAL_TAG, totals.get(ShopifyConstants.DIGITAL_TAG)));
 
         addCellsToTable(table, createTableCell("TOTALS"));
         addCellsToTable(table, createTableCell(String.valueOf(overallTotals.getOrderCount()), ALIGN_CENTER));

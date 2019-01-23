@@ -5,6 +5,7 @@ import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
+import com.macbean.tech.shopify.ShopifyConstants;
 import com.macbean.tech.shopify.model.Order;
 import com.macbean.tech.shopify.model.Orders;
 
@@ -15,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
 import static com.itextpdf.text.Element.*;
+import static com.macbean.tech.shopify.ShopifyConstants.NO_COUNTRY_AVAILABLE;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
 public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenerator {
@@ -176,6 +178,9 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
     public static BigDecimal getCommissionRate(String countryCode) {
         if (countryCode.equalsIgnoreCase(UK) || countryCode.equalsIgnoreCase(IRELAND)) {
             return BigDecimal.valueOf(15);
+        }
+        else if (countryCode.equalsIgnoreCase(NO_COUNTRY_AVAILABLE)) {
+            return BigDecimal.ZERO;
         }
         else {
             return BigDecimal.valueOf(10);

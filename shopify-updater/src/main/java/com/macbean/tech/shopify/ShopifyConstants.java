@@ -9,6 +9,7 @@ public class ShopifyConstants {
     public static final String AFFILIATE_TAG = "affiliate";
     public static final String FREE_TAG = "free";
     public static final String DIRECT_TAG = "direct";
+    public static final String DIGITAL_TAG = "digital";
 
     // HTTP
     static final String GET_REQUEST_METHOD = "GET";
@@ -37,6 +38,7 @@ public class ShopifyConstants {
     static final long PRODUCT_LIMIT_MAX = 250;
     static final long CUSTOMER_LIMIT_MAX = 250;
     static final int MAX_INVENTORY_ITEM_PARAMS = 99;
+    public static final String NO_COUNTRY_AVAILABLE = "N/A";
 
     // INSTANCE INFO
     static final ShopifyInstance UK_INSTANCE = new ShopifyInstance(
