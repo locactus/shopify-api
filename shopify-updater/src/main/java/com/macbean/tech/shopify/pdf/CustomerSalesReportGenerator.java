@@ -6,9 +6,9 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.macbean.tech.shopify.ShopifyConstants;
+import com.macbean.tech.shopify.ShopifyUtils;
 import com.macbean.tech.shopify.model.Customer;
 import com.macbean.tech.shopify.model.Customers;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -64,21 +64,7 @@ public class CustomerSalesReportGenerator extends AbstractShopifyReportGenerator
 
             if (customer.getOrdersCount() > 0) {
 
-                String tag;
-
-                if ("0.00".equals(customer.getTotalSpent())) {
-                    tag = ShopifyConstants.FREE_TAG;
-                } else if (customer.getTags().contains(ShopifyConstants.TRADE_TAG)) {
-                    tag = ShopifyConstants.TRADE_TAG;
-                } else if (customer.getTags().contains(ShopifyConstants.PLATINUM_TAG)) {
-                    tag = ShopifyConstants.PLATINUM_TAG;
-                } else if (customer.getTags().contains(ShopifyConstants.GOLD_TAG)) {
-                    tag = ShopifyConstants.GOLD_TAG;
-                } else if (customer.getTags().contains(ShopifyConstants.AFFILIATE_TAG)) {
-                    tag = ShopifyConstants.AFFILIATE_TAG;
-                } else {
-                    tag = ShopifyConstants.DIRECT_TAG;
-                }
+                final String tag = ShopifyUtils.determineCustomerTag(customer);
 
                 boolean flaggedForUnderperforming =
                         (!customer.getTags().contains(ShopifyConstants.SPONSORSHIP_TAG) && !customer.getTags().contains(ShopifyConstants.PSA_PLAYER_TAG)) &&

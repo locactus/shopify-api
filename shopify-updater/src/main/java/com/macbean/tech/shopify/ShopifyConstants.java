@@ -10,6 +10,8 @@ public class ShopifyConstants {
     public static final String FREE_TAG = "free";
     public static final String DIRECT_TAG = "direct";
     public static final String DIGITAL_TAG = "digital";
+    public static final String SPONSORSHIP_TAG = "sponsorship";
+    public static final String PSA_PLAYER_TAG = "psaplayer";
 
     // HTTP
     static final String GET_REQUEST_METHOD = "GET";
