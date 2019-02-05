@@ -13,6 +13,10 @@ public class ShopifyConstants {
     public static final String SPONSORSHIP_TAG = "sponsorship";
     public static final String PSA_PLAYER_TAG = "psaplayer";
 
+    // Country Codes
+    public static final String UK = "GB";
+    public static final String IRELAND = "IE";
+
     // HTTP
     static final String GET_REQUEST_METHOD = "GET";
     static final String PUT_REQUEST_METHOD = "PUT";

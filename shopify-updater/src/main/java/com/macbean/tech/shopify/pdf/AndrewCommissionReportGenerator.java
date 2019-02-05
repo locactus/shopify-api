@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
 import static com.itextpdf.text.Element.*;
-import static com.macbean.tech.shopify.ShopifyConstants.NO_COUNTRY_AVAILABLE;
+import static com.macbean.tech.shopify.ShopifyConstants.*;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
 public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenerator {
@@ -29,9 +29,6 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
     private static final String BANK_ACCOUNT_NO = "00249958";
     private static final String BANK_BIC = "RBOSGB2L";
     private static final String BANK_IBAN = "GB52RBOS83231000249958";
-
-    private static final String UK = "GB";
-    private static final String IRELAND = "IE";
 
     private BigDecimal totalCommissionDue = BigDecimal.ZERO;
 
