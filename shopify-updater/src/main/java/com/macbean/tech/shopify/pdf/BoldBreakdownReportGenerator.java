@@ -256,13 +256,16 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
             } else if (shippingAmount.compareTo(BigDecimal.valueOf(7.50)) == 0) {
                 result = BigDecimal.valueOf(13.40);
             } else if (shippingAmount.compareTo(BigDecimal.ZERO) == 0) {
-                if (orderAmount.compareTo(BigDecimal.valueOf(100)) == -1) {
+                if (orderAmount.compareTo(BigDecimal.valueOf(100)) < 0) {
                     result = BigDecimal.valueOf(10.57);
                 }
                 else {
                     result = BigDecimal.valueOf(13.40);
                 }
             }
+        }
+        else if (shippingAmount.compareTo(BigDecimal.ZERO) == 0) {
+            result = BigDecimal.valueOf(15.00);
         }
         return result;
     }
