@@ -11,6 +11,7 @@ import com.macbean.tech.shopify.model.Orders;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
@@ -22,6 +23,10 @@ import java.util.Map;
 import static com.itextpdf.text.Element.*;
 
 public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator {
+
+    private static final double SHOPIFY_FEES = 225d;
+    private static final double TRANSACTION_FEES = 467d;
+    private static final double SHIPPING_COSTS = 1500d;
 
     private final int SCALE = 2;
     private final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
@@ -167,7 +172,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         final PdfPCell profitCell = createTableCell(totals.getProfitTotal(), ALIGN_RIGHT);
         table.addCell(profitCell);
 
-        final PdfPCell profitMarginCell = createTableCell("", ALIGN_RIGHT);
+        final PdfPCell profitMarginCell = createTableCell(calculateProfitMargin(totals.getSalesTotal(), totals.getProfitTotal()), ALIGN_RIGHT);
         table.addCell(profitMarginCell);
     }
 
@@ -188,7 +193,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         final BigDecimal totalDiscount = new BigDecimal(order.getTotalDiscounts());
         final BigDecimal totalPrice = new BigDecimal(order.getTotalPrice());
         final BigDecimal totalPriceBeforeDiscount = new BigDecimal(order.getTotalPrice()).add(totalDiscount);
-        final BigDecimal percentageDiscount = totalDiscount.divide(totalPriceBeforeDiscount, SCALE, ROUNDING)
+        final BigDecimal percentageDiscount = totalDiscount.divide(totalPriceBeforeDiscount, SCALE * SCALE, ROUNDING)
                 .multiply(ONE_HUNDRED)
                 .setScale(SCALE, BigDecimal.ROUND_HALF_UP);
         final BigDecimal totalTax = new BigDecimal(order.getTotalTax());
@@ -216,13 +221,51 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         tableTotals.addProfit(totalOrderProfit);
         table.addCell(createTableCell(totalOrderProfit, ALIGN_RIGHT));
 
-        final BigDecimal orderProfitMargin = salesTotalExlTax.compareTo(BigDecimal.ZERO) < 1 ? BigDecimal.ZERO :
-                totalOrderProfit.divide(salesTotalExlTax, SCALE, ROUNDING)
-                        .multiply(ONE_HUNDRED)
-                        .setScale(SCALE, BigDecimal.ROUND_HALF_UP);
-        table.addCell(createTableCell(orderProfitMargin.compareTo(BigDecimal.ZERO) < 1 ? "" : orderProfitMargin.toPlainString()+"%", ALIGN_RIGHT));
+        table.addCell(createTableCell(calculateProfitMargin(salesTotalExlTax, totalOrderProfit), ALIGN_RIGHT));
 
         return salesTotalExlTax;
+    }
+
+    private String calculateProfitMargin(BigDecimal salesAmount, BigDecimal profit) {
+        final BigDecimal profitMargin = salesAmount.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO :
+                profit.divide(salesAmount, SCALE * SCALE, ROUNDING).multiply(ONE_HUNDRED).setScale(SCALE, BigDecimal.ROUND_HALF_UP);
+        return salesAmount.compareTo(BigDecimal.ZERO) <= 0 ? "N/A" : profitMargin.toPlainString()+"%";
+    }
+
+    private PdfPCell[] getSummaryTableHeaders() {
+        final List<PdfPCell> headers = new ArrayList<>();
+        headers.add(createTableHeaderCell("Sales Group"));
+        headers.add(createTableHeaderCell("No Of Orders"));
+        headers.add(createTableHeaderCell("Sale Amount (Excl VAT)"));
+        headers.add(createTableHeaderCell("Total Cost"));
+        headers.add(createTableHeaderCell("Total Commission"));
+        headers.add(createTableHeaderCell("Total Profit"));
+        headers.add(createTableHeaderCell("Total Profit Margin"));
+        return headers.toArray(new PdfPCell[0]);
+    }
+
+    private PdfPCell[] getSummaryCells(String description, BoldTableTotals tableTotals) {
+        final List<PdfPCell> summaryCells = new ArrayList<>();
+
+        summaryCells.add(createTableCell(description));
+        overallTotals.addOrders(tableTotals.getOrderCount());
+        summaryCells.add(createTableCell(String.valueOf(tableTotals.getOrderCount()), ALIGN_CENTER));
+
+        overallTotals.addSales(tableTotals.getSalesTotal());
+        summaryCells.add(createTableCell(tableTotals.getSalesTotal(), ALIGN_RIGHT));
+
+        overallTotals.addCost(tableTotals.getCostTotal());
+        summaryCells.add(createTableCell(tableTotals.getCostTotal(), ALIGN_RIGHT));
+
+        overallTotals.addCommission(tableTotals.getCommissionTotal());
+        summaryCells.add(createTableCell(tableTotals.getCommissionTotal(), ALIGN_RIGHT));
+
+        overallTotals.addProfit(tableTotals.getProfitTotal());
+        summaryCells.add(createTableCell(tableTotals.getProfitTotal(), ALIGN_RIGHT));
+
+        summaryCells.add(createTableCell(calculateProfitMargin(tableTotals.getSalesTotal(), tableTotals.getProfitTotal()), ALIGN_RIGHT));
+
+        return summaryCells.toArray(new PdfPCell[0]);
     }
 
     private PdfPTable getSummaryTable() {
@@ -246,46 +289,55 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         addCellsToTable(table, createTableCell(overallTotals.getCostTotal(), ALIGN_RIGHT));
         addCellsToTable(table, createTableCell(overallTotals.getCommissionTotal(), ALIGN_RIGHT));
         addCellsToTable(table, createTableCell(overallTotals.getProfitTotal(), ALIGN_RIGHT));
+        addCellsToTable(table, createTableCell(calculateProfitMargin(overallTotals.getSalesTotal(), overallTotals.getProfitTotal()), ALIGN_RIGHT));
         return table;
     }
 
-    private PdfPCell[] getSummaryTableHeaders() {
+    private PdfPCell[] getExternalCostsTableHeaders() {
         final List<PdfPCell> headers = new ArrayList<>();
-        headers.add(createTableHeaderCell("Sales Group"));
-        headers.add(createTableHeaderCell("No Of Orders"));
-        headers.add(createTableHeaderCell("Sale Amount (Excl VAT)"));
-        headers.add(createTableHeaderCell("Total Cost"));
-        headers.add(createTableHeaderCell("Total Commission"));
-        headers.add(createTableHeaderCell("Total Profit"));
+        headers.add(createTableHeaderCell("Sales Profit"));
+        headers.add(createTableHeaderCell("Shopify Fees*"));
+        headers.add(createTableHeaderCell("Shipping Costs*"));
+        headers.add(createTableHeaderCell("Transaction Fees*"));
+        headers.add(createTableHeaderCell("Estimated Profit/Surplus"));
         return headers.toArray(new PdfPCell[0]);
     }
 
-    private PdfPCell[] getSummaryCells(String description, BoldTableTotals tableTotals) {
-        final List<PdfPCell> summaryCells = new ArrayList<>();
+    private PdfPCell[] getExternalCostsCells(BigDecimal totalProfit) {
+        final List<PdfPCell> externalCostsCells = new ArrayList<>();
 
-        summaryCells.add(createTableCell(description));
-        overallTotals.addOrders(tableTotals.getOrderCount());
-        summaryCells.add(createTableCell(String.valueOf(tableTotals.getOrderCount()), ALIGN_CENTER));
+        final BigDecimal shopifyFees = BigDecimal.valueOf(SHOPIFY_FEES);
+        final BigDecimal transactionFees = BigDecimal.valueOf(TRANSACTION_FEES);
+        final BigDecimal shippingCosts = BigDecimal.valueOf(SHIPPING_COSTS);
+        final BigDecimal surplus =  totalProfit.subtract(shopifyFees).subtract(transactionFees).subtract(shippingCosts);
 
-        overallTotals.addSales(tableTotals.getSalesTotal());
-        summaryCells.add(createTableCell(tableTotals.getSalesTotal(), ALIGN_RIGHT));
+        externalCostsCells.add(createTableCell(totalProfit, ALIGN_RIGHT));
+        externalCostsCells.add(createTableCell(shopifyFees, ALIGN_RIGHT));
+        externalCostsCells.add(createTableCell(transactionFees, ALIGN_RIGHT));
+        externalCostsCells.add(createTableCell(shippingCosts, ALIGN_RIGHT));
+        externalCostsCells.add(createTableCell(surplus, ALIGN_RIGHT));
 
-        overallTotals.addCost(tableTotals.getCostTotal());
-        summaryCells.add(createTableCell(tableTotals.getCostTotal(), ALIGN_RIGHT));
+        return externalCostsCells.toArray(new PdfPCell[0]);
+    }
 
-        overallTotals.addCommission(tableTotals.getCommissionTotal());
-        summaryCells.add(createTableCell(tableTotals.getCommissionTotal(), ALIGN_RIGHT));
-
-        overallTotals.addProfit(tableTotals.getProfitTotal());
-        summaryCells.add(createTableCell(tableTotals.getProfitTotal(), ALIGN_RIGHT));
-
-        return summaryCells.toArray(new PdfPCell[0]);
+    private PdfPTable getExternalCostsTable(BigDecimal totalProfit) {
+        final PdfPTable table = createFullWidthTable(getExternalCostsTableHeaders().length);
+        table.setWidthPercentage(100f);
+        final PdfPCell titleCell = createTableHeaderCell("ESTIMATED COST SUMMARY\n(* estimated amount)", ALIGN_CENTER);
+        titleCell.setColspan(getSummaryTableHeaders().length);
+        table.addCell(titleCell);
+        addCellsToTable(table, getExternalCostsTableHeaders());
+        addCellsToTable(table, getExternalCostsCells(totalProfit));
+        return table;
     }
 
     @Override
     void addFooter() throws DocumentException, IOException {
-        final PdfPTable breakdownTable = getSummaryTable();
-        document.add(breakdownTable);
+        final PdfPTable summaryTable = getSummaryTable();
+        document.add(summaryTable);
+
+        final PdfPTable externalCostsTable = getExternalCostsTable(overallTotals.getProfitTotal());
+        document.add(externalCostsTable);
     }
 
     private class BoldTableTotals {
