@@ -6,6 +6,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.macbean.tech.shopify.ShopifyConstants;
+import com.macbean.tech.shopify.model.DiscountApplications;
 import com.macbean.tech.shopify.model.Order;
 import com.macbean.tech.shopify.model.Orders;
 
@@ -69,60 +70,78 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         final PdfPTable affiliateTable = getPricingGroupTable(ShopifyConstants.AFFILIATE_TAG);
         final PdfPTable directTable = getPricingGroupTable(ShopifyConstants.DIRECT_TAG);
         final PdfPTable freeTable = getPricingGroupTable(ShopifyConstants.FREE_TAG);
+        final PdfPTable sponsorshipTable = getPricingGroupTable(ShopifyConstants.SPONSORSHIP_TAG);
         final PdfPTable digitalTable = getPricingGroupTable(ShopifyConstants.DIGITAL_TAG);
-
-        totals.put(ShopifyConstants.TRADE_TAG, new BoldTableTotals());
-        totals.put(ShopifyConstants.PLATINUM_TAG, new BoldTableTotals());
-        totals.put(ShopifyConstants.GOLD_TAG, new BoldTableTotals());
-        totals.put(ShopifyConstants.AFFILIATE_TAG, new BoldTableTotals());
-        totals.put(ShopifyConstants.DIRECT_TAG, new BoldTableTotals());
-        totals.put(ShopifyConstants.FREE_TAG, new BoldTableTotals());
-        totals.put(ShopifyConstants.DIGITAL_TAG, new BoldTableTotals());
+        final PdfPTable replacementTable = getPricingGroupTable(ShopifyConstants.REPLACEMENTS_TAG);
+        final PdfPTable returnsTable = getPricingGroupTable(ShopifyConstants.RETURN_TAG);
+        final PdfPTable demosTable = getPricingGroupTable(ShopifyConstants.DEMOS_TAG);
+        final PdfPTable staffTable = getPricingGroupTable(ShopifyConstants.STAFF_TAG);
+        final PdfPTable voucherTable = getPricingGroupTable(ShopifyConstants.VOUCHER_TAG);
 
         for (Order order : orders.getOrders()) {
             if (order.getShippingAddress() == null) {
                 addOrderToTable(totals.get(ShopifyConstants.DIGITAL_TAG), digitalTable, order);
-            } else if ("0.00".equals(order.getTotalPrice())) {
+            }
+            else if (order.getDiscountApplications() != null && order.getDiscountApplications().size() > 0 &&
+                    order.getDiscountApplications().stream().anyMatch(x -> x.getType().equalsIgnoreCase("discount_code"))) {
+                addOrderToTable(totals.get(ShopifyConstants.VOUCHER_TAG), voucherTable, order);
+            }
+            else if (order.getTags().contains(ShopifyConstants.STAFF_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.STAFF_TAG), staffTable, order);
+            }
+            else if (order.getTags().contains(ShopifyConstants.REPLACEMENTS_TAG) ||
+                    order.getTags().contains(ShopifyConstants.BREAKAGES_TAG) ||
+                    order.getTags().contains(ShopifyConstants.FAULTY_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.REPLACEMENTS_TAG), replacementTable, order);
+            }
+            else if (order.getTags().contains(ShopifyConstants.RETURN_TAG) ||
+                    order.getTags().contains(ShopifyConstants.EXCHANGE_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.RETURN_TAG), returnsTable, order);
+            }
+            else if (order.getTags().contains(ShopifyConstants.DEMOS_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.DEMOS_TAG), demosTable, order);
+            }
+            else if (order.getTags().contains(ShopifyConstants.SPONSORSHIP_TAG)) {
+                addOrderToTable(totals.get(ShopifyConstants.SPONSORSHIP_TAG), sponsorshipTable, order);
+            }
+            else if ("0.00".equals(order.getTotalPrice())) {
                 addOrderToTable(totals.get(ShopifyConstants.FREE_TAG), freeTable, order);
-            } else if (order.getCustomer().getTags().contains(ShopifyConstants.TRADE_TAG)) {
+            }
+            else if (order.getCustomer().getTags().contains(ShopifyConstants.TRADE_TAG)) {
                 addOrderToTable(totals.get(ShopifyConstants.TRADE_TAG), tradeTable, order);
-            } else if (order.getCustomer().getTags().contains(ShopifyConstants.PLATINUM_TAG)) {
+            }
+            else if (order.getCustomer().getTags().contains(ShopifyConstants.PLATINUM_TAG)) {
                 addOrderToTable(totals.get(ShopifyConstants.PLATINUM_TAG), platinumTable, order);
-            } else if (order.getCustomer().getTags().contains(ShopifyConstants.GOLD_TAG)) {
+            }
+            else if (order.getCustomer().getTags().contains(ShopifyConstants.GOLD_TAG)) {
                 addOrderToTable(totals.get(ShopifyConstants.GOLD_TAG), goldTable, order);
-            } else if (order.getCustomer().getTags().contains(ShopifyConstants.AFFILIATE_TAG)) {
+            }
+            else if (order.getCustomer().getTags().contains(ShopifyConstants.AFFILIATE_TAG)) {
                 addOrderToTable(totals.get(ShopifyConstants.AFFILIATE_TAG), affiliateTable, order);
-            } else {
+            }
+            else {
                 addOrderToTable(totals.get(ShopifyConstants.DIRECT_TAG), directTable, order);
             }
         }
 
-        addTotalRowToTable(totals.get(ShopifyConstants.TRADE_TAG), tradeTable);
-        document.add(tradeTable);
-        document.newPage();
+        addTotalRowAndDisplay(ShopifyConstants.TRADE_TAG, tradeTable);
+        addTotalRowAndDisplay(ShopifyConstants.PLATINUM_TAG, platinumTable);
+        addTotalRowAndDisplay(ShopifyConstants.GOLD_TAG, goldTable);
+        addTotalRowAndDisplay(ShopifyConstants.AFFILIATE_TAG, affiliateTable);
+        addTotalRowAndDisplay(ShopifyConstants.DIRECT_TAG, directTable);
+        addTotalRowAndDisplay(ShopifyConstants.VOUCHER_TAG, voucherTable);
+        addTotalRowAndDisplay(ShopifyConstants.DEMOS_TAG, demosTable);
+        addTotalRowAndDisplay(ShopifyConstants.DIGITAL_TAG, digitalTable);
+        addTotalRowAndDisplay(ShopifyConstants.FREE_TAG, freeTable);
+        addTotalRowAndDisplay(ShopifyConstants.STAFF_TAG, staffTable);
+        addTotalRowAndDisplay(ShopifyConstants.SPONSORSHIP_TAG, sponsorshipTable);
+        addTotalRowAndDisplay(ShopifyConstants.REPLACEMENTS_TAG, replacementTable);
+        addTotalRowAndDisplay(ShopifyConstants.RETURN_TAG, returnsTable);
+    }
 
-        addTotalRowToTable(totals.get(ShopifyConstants.PLATINUM_TAG), platinumTable);
-        document.add(platinumTable);
-        document.newPage();
-
-        addTotalRowToTable(totals.get(ShopifyConstants.GOLD_TAG), goldTable);
-        document.add(goldTable);
-        document.newPage();
-
-        addTotalRowToTable(totals.get(ShopifyConstants.AFFILIATE_TAG), affiliateTable);
-        document.add(affiliateTable);
-        document.newPage();
-
-        addTotalRowToTable(totals.get(ShopifyConstants.DIRECT_TAG), directTable);
-        document.add(directTable);
-        document.newPage();
-
-        addTotalRowToTable(totals.get(ShopifyConstants.FREE_TAG), freeTable);
-        document.add(freeTable);
-        document.newPage();
-
-        addTotalRowToTable(totals.get(ShopifyConstants.DIGITAL_TAG), digitalTable);
-        document.add(digitalTable);
+    private void addTotalRowAndDisplay(String tag, PdfPTable table) throws DocumentException {
+        addTotalRowToTable(totals.get(tag), table);
+        document.add(table);
         document.newPage();
     }
 
@@ -143,6 +162,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
     }
 
     private PdfPTable getPricingGroupTable(String name) {
+        totals.put(name, new BoldTableTotals());
         final PdfPTable table = createFullWidthTable(3,6,7,2,5,4,4,4,4,4,4);
         table.setWidthPercentage(100f);
         final PdfPCell titleCell = createTableHeaderCell(name.toUpperCase() + " SALES", ALIGN_CENTER);
@@ -244,10 +264,11 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         return headers.toArray(new PdfPCell[0]);
     }
 
-    private PdfPCell[] getSummaryCells(String description, BoldTableTotals tableTotals) {
+    private PdfPCell[] getSummaryCells(String tag) {
+        final BoldTableTotals tableTotals = totals.get(tag);
         final List<PdfPCell> summaryCells = new ArrayList<>();
 
-        summaryCells.add(createTableCell(description));
+        summaryCells.add(createTableCell(tag));
         overallTotals.addOrders(tableTotals.getOrderCount());
         summaryCells.add(createTableCell(String.valueOf(tableTotals.getOrderCount()), ALIGN_CENTER));
 
@@ -275,13 +296,20 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         titleCell.setColspan(getSummaryTableHeaders().length);
         table.addCell(titleCell);
         addCellsToTable(table, getSummaryTableHeaders());
-        addCellsToTable(table, getSummaryCells(ShopifyConstants.TRADE_TAG, totals.get(ShopifyConstants.TRADE_TAG)));
-        addCellsToTable(table, getSummaryCells(ShopifyConstants.PLATINUM_TAG, totals.get(ShopifyConstants.PLATINUM_TAG)));
-        addCellsToTable(table, getSummaryCells(ShopifyConstants.GOLD_TAG, totals.get(ShopifyConstants.GOLD_TAG)));
-        addCellsToTable(table, getSummaryCells(ShopifyConstants.AFFILIATE_TAG, totals.get(ShopifyConstants.AFFILIATE_TAG)));
-        addCellsToTable(table, getSummaryCells(ShopifyConstants.DIRECT_TAG, totals.get(ShopifyConstants.DIRECT_TAG)));
-        addCellsToTable(table, getSummaryCells(ShopifyConstants.FREE_TAG, totals.get(ShopifyConstants.FREE_TAG)));
-        addCellsToTable(table, getSummaryCells(ShopifyConstants.DIGITAL_TAG, totals.get(ShopifyConstants.DIGITAL_TAG)));
+
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.TRADE_TAG));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.PLATINUM_TAG));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.GOLD_TAG));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.AFFILIATE_TAG));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.DIRECT_TAG));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.VOUCHER_TAG));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.DEMOS_TAG));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.DIGITAL_TAG));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.FREE_TAG));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.STAFF_TAG));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.SPONSORSHIP_TAG));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.REPLACEMENTS_TAG));
+        addCellsToTable(table, getSummaryCells(ShopifyConstants.RETURN_TAG));
 
         addCellsToTable(table, createTableCell("TOTALS"));
         addCellsToTable(table, createTableCell(String.valueOf(overallTotals.getOrderCount()), ALIGN_CENTER));
