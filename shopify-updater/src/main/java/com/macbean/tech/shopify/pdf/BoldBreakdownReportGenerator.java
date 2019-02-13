@@ -6,14 +6,12 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.macbean.tech.shopify.ShopifyConstants;
-import com.macbean.tech.shopify.model.DiscountApplications;
 import com.macbean.tech.shopify.model.Order;
 import com.macbean.tech.shopify.model.Orders;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
@@ -22,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.itextpdf.text.Element.*;
 
@@ -36,8 +33,8 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
     private final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
     private final RoundingMode ROUNDING = RoundingMode.HALF_UP;
 
-    private Map<String, BoldTableTotals> totals = new HashMap<>(10);
-    private  Map<Long, BigDecimal> allCostsByVariantId = new HashMap<>(100);
+    private Map<String, BoldTableTotals> tableTotalsMap = new HashMap<>(10);
+    private Map<Long, BigDecimal> allCostsByVariantId = new HashMap<>(100);
 
     private BoldTableTotals overallTotals = new BoldTableTotals();
 
@@ -83,46 +80,46 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
 
         for (Order order : orders.getOrders()) {
             if (order.getShippingAddress() == null) {
-                addOrderToTable(totals.get(ShopifyConstants.DIGITAL_TAG), digitalTable, order);
+                addOrderToTable(ShopifyConstants.DIGITAL_TAG, digitalTable, order);
             }
             else if (hasDiscountCodeBeenUsed(order)) {
-                addOrderToTable(totals.get(ShopifyConstants.VOUCHER_TAG), voucherTable, order);
+                addOrderToTable(ShopifyConstants.VOUCHER_TAG, voucherTable, order);
             }
             else if (order.getTags().contains(ShopifyConstants.STAFF_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.STAFF_TAG), staffTable, order);
+                addOrderToTable(ShopifyConstants.STAFF_TAG, staffTable, order);
             }
             else if (order.getTags().contains(ShopifyConstants.REPLACEMENTS_TAG) ||
                     order.getTags().contains(ShopifyConstants.BREAKAGES_TAG) ||
                     order.getTags().contains(ShopifyConstants.FAULTY_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.REPLACEMENTS_TAG), replacementTable, order);
+                addOrderToTable(ShopifyConstants.REPLACEMENTS_TAG, replacementTable, order);
             }
             else if (order.getTags().contains(ShopifyConstants.RETURN_TAG) ||
                     order.getTags().contains(ShopifyConstants.EXCHANGE_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.RETURN_TAG), returnsTable, order);
+                addOrderToTable(ShopifyConstants.RETURN_TAG, returnsTable, order);
             }
             else if (order.getTags().contains(ShopifyConstants.DEMOS_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.DEMOS_TAG), demosTable, order);
+                addOrderToTable(ShopifyConstants.DEMOS_TAG, demosTable, order);
             }
             else if (order.getTags().contains(ShopifyConstants.SPONSORSHIP_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.SPONSORSHIP_TAG), sponsorshipTable, order);
+                addOrderToTable(ShopifyConstants.SPONSORSHIP_TAG, sponsorshipTable, order);
             }
             else if ("0.00".equals(order.getTotalPrice())) {
-                addOrderToTable(totals.get(ShopifyConstants.FREE_TAG), freeTable, order);
+                addOrderToTable(ShopifyConstants.FREE_TAG, freeTable, order);
             }
             else if (order.getCustomer().getTags().contains(ShopifyConstants.TRADE_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.TRADE_TAG), tradeTable, order);
+                addOrderToTable(ShopifyConstants.TRADE_TAG, tradeTable, order);
             }
             else if (order.getCustomer().getTags().contains(ShopifyConstants.PLATINUM_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.PLATINUM_TAG), platinumTable, order);
+                addOrderToTable(ShopifyConstants.PLATINUM_TAG, platinumTable, order);
             }
             else if (order.getCustomer().getTags().contains(ShopifyConstants.GOLD_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.GOLD_TAG), goldTable, order);
+                addOrderToTable(ShopifyConstants.GOLD_TAG, goldTable, order);
             }
             else if (order.getCustomer().getTags().contains(ShopifyConstants.AFFILIATE_TAG)) {
-                addOrderToTable(totals.get(ShopifyConstants.AFFILIATE_TAG), affiliateTable, order);
+                addOrderToTable(ShopifyConstants.AFFILIATE_TAG, affiliateTable, order);
             }
             else {
-                addOrderToTable(totals.get(ShopifyConstants.DIRECT_TAG), directTable, order);
+                addOrderToTable(ShopifyConstants.DIRECT_TAG, directTable, order);
             }
         }
 
@@ -147,7 +144,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
     }
 
     private void addTotalRowAndDisplay(String tag, PdfPTable table) throws DocumentException {
-        addTotalRowToTable(totals.get(tag), table);
+        addTotalRowToTable(tableTotalsMap.get(tag), table);
         document.add(table);
         document.newPage();
     }
@@ -168,11 +165,12 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         return headers.toArray(new PdfPCell[0]);
     }
 
-    private PdfPTable getPricingGroupTable(String name) {
-        totals.put(name, new BoldTableTotals());
+    private PdfPTable getPricingGroupTable(String tag) {
+        tableTotalsMap.put(tag, new BoldTableTotals());
+
         final PdfPTable table = createFullWidthTable(3,6,7,2,5,4,4,4,4,4,4);
         table.setWidthPercentage(100f);
-        final PdfPCell titleCell = createTableHeaderCell(name.toUpperCase() + " SALES", ALIGN_CENTER);
+        final PdfPCell titleCell = createTableHeaderCell(tag.toUpperCase() + " SALES", ALIGN_CENTER);
         titleCell.setColspan(getPricingTableHeaders().length);
         table.addCell(titleCell);
         addCellsToTable(table, getPricingTableHeaders());
@@ -203,7 +201,9 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         table.addCell(profitMarginCell);
     }
 
-    private BigDecimal addOrderToTable(BoldTableTotals tableTotals, PdfPTable table, Order order) throws IOException {
+    private BigDecimal addOrderToTable(String tag, PdfPTable table, Order order) throws IOException {
+        final BoldTableTotals tableTotals = tableTotalsMap.get(tag);
+
         tableTotals.addOrder();
         table.addCell(createTableCell(order.getName()));
 
@@ -280,7 +280,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
     }
 
     private PdfPCell[] getSummaryCells(String tag) {
-        final BoldTableTotals tableTotals = totals.get(tag);
+        final BoldTableTotals tableTotals = tableTotalsMap.get(tag);
         final List<PdfPCell> summaryCells = new ArrayList<>();
 
         summaryCells.add(createTableCell(tag));
