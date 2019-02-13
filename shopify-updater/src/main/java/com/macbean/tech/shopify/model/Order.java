@@ -162,7 +162,7 @@ public class Order {
     @JsonProperty("discount_applications")
     private List<DiscountApplications> discountApplications = null;
     @JsonProperty("discount_codes")
-    private List<Object> discountCodes = null;
+    private List<Map<String, String>> discountCodes = null;
     @JsonProperty("note_attributes")
     private List<Object> noteAttributes = null;
     @JsonProperty("payment_gateway_names")
@@ -635,12 +635,12 @@ public class Order {
     }
 
     @JsonProperty("discount_codes")
-    public List<Object> getDiscountCodes() {
+    public List<Map<String, String>> getDiscountCodes() {
         return discountCodes;
     }
 
     @JsonProperty("discount_codes")
-    public void setDiscountCodes(List<Object> discountCodes) {
+    public void setDiscountCodes(List<Map<String, String>> discountCodes) {
         this.discountCodes = discountCodes;
     }
 

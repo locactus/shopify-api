@@ -12,7 +12,6 @@ public class ShopifyConstants {
     public static final String DIGITAL_TAG = "digital";
     public static final String SPONSORSHIP_TAG = "sponsorship";
     public static final String PSA_PLAYER_TAG = "psaplayer";
-    public static final String REFUNDED_TAG = "refunded";
     public static final String EXCHANGE_TAG = "exchange";
     public static final String RETURN_TAG = "return";
     public static final String REPLACEMENTS_TAG = "replacements";
@@ -21,6 +20,8 @@ public class ShopifyConstants {
     public static final String DEMOS_TAG = "demos";
     public static final String STAFF_TAG = "staff";
     public static final String VOUCHER_TAG = "voucher";
+
+    public static final String DISCOUNT_CODE_TYPE = "discount_code";
 
     // Country Codes
     public static final String UK = "GB";

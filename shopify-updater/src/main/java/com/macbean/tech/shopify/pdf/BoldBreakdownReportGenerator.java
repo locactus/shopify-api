@@ -9,6 +9,7 @@ import com.macbean.tech.shopify.ShopifyConstants;
 import com.macbean.tech.shopify.model.DiscountApplications;
 import com.macbean.tech.shopify.model.Order;
 import com.macbean.tech.shopify.model.Orders;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -20,6 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.itextpdf.text.Element.*;
 
@@ -33,7 +36,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
     private final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
     private final RoundingMode ROUNDING = RoundingMode.HALF_UP;
 
-    private Map<String, BoldTableTotals> totals = new HashMap<>(6);
+    private Map<String, BoldTableTotals> totals = new HashMap<>(10);
     private  Map<Long, BigDecimal> allCostsByVariantId = new HashMap<>(100);
 
     private BoldTableTotals overallTotals = new BoldTableTotals();
@@ -82,8 +85,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
             if (order.getShippingAddress() == null) {
                 addOrderToTable(totals.get(ShopifyConstants.DIGITAL_TAG), digitalTable, order);
             }
-            else if (order.getDiscountApplications() != null && order.getDiscountApplications().size() > 0 &&
-                    order.getDiscountApplications().stream().anyMatch(x -> x.getType().equalsIgnoreCase("discount_code"))) {
+            else if (hasDiscountCodeBeenUsed(order)) {
                 addOrderToTable(totals.get(ShopifyConstants.VOUCHER_TAG), voucherTable, order);
             }
             else if (order.getTags().contains(ShopifyConstants.STAFF_TAG)) {
@@ -139,6 +141,11 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         addTotalRowAndDisplay(ShopifyConstants.RETURN_TAG, returnsTable);
     }
 
+    private boolean hasDiscountCodeBeenUsed(Order order) {
+        return order.getDiscountApplications() != null && order.getDiscountApplications().size() > 0 &&
+                order.getDiscountApplications().stream().anyMatch(x -> x.getType().equalsIgnoreCase(ShopifyConstants.DISCOUNT_CODE_TYPE));
+    }
+
     private void addTotalRowAndDisplay(String tag, PdfPTable table) throws DocumentException {
         addTotalRowToTable(totals.get(tag), table);
         document.add(table);
@@ -151,11 +158,11 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         headers.add(createTableHeaderCell("Order Date"));
         headers.add(createTableHeaderCell("Customer Name"));
         headers.add(createTableHeaderCell("Co."));
-        headers.add(createTableHeaderCell("Tags"));
+        headers.add(createTableHeaderCell("Tags/Codes"));
         headers.add(createTableHeaderCell("Discount %"));
         headers.add(createTableHeaderCell("Sale Amount (Excl VAT)"));
         headers.add(createTableHeaderCell("Item Costs"));
-        headers.add(createTableHeaderCell("Commiss."));
+        headers.add(createTableHeaderCell("Commission"));
         headers.add(createTableHeaderCell("Profit Amount"));
         headers.add(createTableHeaderCell("Profit %"));
         return headers.toArray(new PdfPCell[0]);
@@ -208,7 +215,15 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         String countryCode = order.getShippingAddress() != null ? order.getShippingAddress().getCountryCode() : ShopifyConstants.NO_COUNTRY_AVAILABLE;
         table.addCell(countryCode);
 
-        table.addCell(createTableTagCell(order.getTags()));
+        String discountCodes = StringUtils.EMPTY;
+        if (hasDiscountCodeBeenUsed(order)) {
+            final List<String> discountCodesList = order.getDiscountCodes().stream()
+                    .map(x -> x.get("code"))
+                    .collect(Collectors.toList());
+            discountCodes = String.join(", ", discountCodesList);
+        }
+
+        table.addCell(createTableTagCell(order.getTags() + (StringUtils.isEmpty(discountCodes) ? StringUtils.EMPTY : " [" + discountCodes + "]")));
 
         final BigDecimal totalDiscount = new BigDecimal(order.getTotalDiscounts());
         final BigDecimal totalPrice = new BigDecimal(order.getTotalPrice());
@@ -341,8 +356,8 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
 
         externalCostsCells.add(createTableCell(totalProfit, ALIGN_RIGHT));
         externalCostsCells.add(createTableCell(shopifyFees, ALIGN_RIGHT));
-        externalCostsCells.add(createTableCell(transactionFees, ALIGN_RIGHT));
         externalCostsCells.add(createTableCell(shippingCosts, ALIGN_RIGHT));
+        externalCostsCells.add(createTableCell(transactionFees, ALIGN_RIGHT));
         externalCostsCells.add(createTableCell(surplus, ALIGN_RIGHT));
 
         return externalCostsCells.toArray(new PdfPCell[0]);
