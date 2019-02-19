@@ -6,6 +6,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.macbean.tech.shopify.ShopifyConstants;
+import com.macbean.tech.shopify.model.LineItem;
 import com.macbean.tech.shopify.model.Order;
 import com.macbean.tech.shopify.model.Orders;
 import org.apache.commons.lang3.StringUtils;
@@ -78,6 +79,10 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         final PdfPTable staffTable = getPricingGroupTable(ShopifyConstants.STAFF_TAG);
         final PdfPTable voucherTable = getPricingGroupTable(ShopifyConstants.VOUCHER_TAG);
 
+        final PdfPTable freeProductsTable = getProductBreakdownTable(ShopifyConstants.FREE_TAG);
+        final PdfPTable staffProductsTable = getProductBreakdownTable(ShopifyConstants.STAFF_TAG);
+        final PdfPTable replacementProductsTable = getProductBreakdownTable(ShopifyConstants.REPLACEMENTS_TAG);
+
         for (Order order : orders.getOrders()) {
             if (order.getShippingAddress() == null) {
                 addOrderToTable(ShopifyConstants.DIGITAL_TAG, digitalTable, order);
@@ -87,11 +92,13 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
             }
             else if (order.getTags().contains(ShopifyConstants.STAFF_TAG)) {
                 addOrderToTable(ShopifyConstants.STAFF_TAG, staffTable, order);
+                addProducts(staffProductsTable, order);
             }
             else if (order.getTags().contains(ShopifyConstants.REPLACEMENTS_TAG) ||
                     order.getTags().contains(ShopifyConstants.BREAKAGES_TAG) ||
                     order.getTags().contains(ShopifyConstants.FAULTY_TAG)) {
                 addOrderToTable(ShopifyConstants.REPLACEMENTS_TAG, replacementTable, order);
+                addProducts(replacementProductsTable, order);
             }
             else if (order.getTags().contains(ShopifyConstants.RETURN_TAG) ||
                     order.getTags().contains(ShopifyConstants.EXCHANGE_TAG)) {
@@ -105,6 +112,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
             }
             else if ("0.00".equals(order.getTotalPrice())) {
                 addOrderToTable(ShopifyConstants.FREE_TAG, freeTable, order);
+                addProducts(freeProductsTable, order);
             }
             else if (order.getCustomer().getTags().contains(ShopifyConstants.TRADE_TAG)) {
                 addOrderToTable(ShopifyConstants.TRADE_TAG, tradeTable, order);
@@ -131,10 +139,10 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         addTotalRowAndDisplay(ShopifyConstants.VOUCHER_TAG, voucherTable);
         addTotalRowAndDisplay(ShopifyConstants.DEMOS_TAG, demosTable);
         addTotalRowAndDisplay(ShopifyConstants.DIGITAL_TAG, digitalTable);
-        addTotalRowAndDisplay(ShopifyConstants.FREE_TAG, freeTable);
-        addTotalRowAndDisplay(ShopifyConstants.STAFF_TAG, staffTable);
+        addTotalRowAndDisplay(ShopifyConstants.FREE_TAG, freeTable, freeProductsTable);
+        addTotalRowAndDisplay(ShopifyConstants.STAFF_TAG, staffTable, staffProductsTable);
         addTotalRowAndDisplay(ShopifyConstants.SPONSORSHIP_TAG, sponsorshipTable);
-        addTotalRowAndDisplay(ShopifyConstants.REPLACEMENTS_TAG, replacementTable);
+        addTotalRowAndDisplay(ShopifyConstants.REPLACEMENTS_TAG, replacementTable, replacementProductsTable);
         addTotalRowAndDisplay(ShopifyConstants.RETURN_TAG, returnsTable);
     }
 
@@ -144,8 +152,15 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
     }
 
     private void addTotalRowAndDisplay(String tag, PdfPTable table) throws DocumentException {
+        addTotalRowAndDisplay(tag,table, null);
+    }
+
+    private void addTotalRowAndDisplay(String tag, PdfPTable table, PdfPTable productsTable) throws DocumentException {
         addTotalRowToTable(tableTotalsMap.get(tag), table);
         document.add(table);
+        if (productsTable != null) {
+            document.add(productsTable);
+        }
         document.newPage();
     }
 
@@ -165,6 +180,15 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         return headers.toArray(new PdfPCell[0]);
     }
 
+    private PdfPCell[] getProductTableHeaders() {
+        final List<PdfPCell> headers = new ArrayList<>();
+        headers.add(createTableHeaderCell("SKU"));
+        headers.add(createTableHeaderCell("Product"));
+        headers.add(createTableHeaderCell("Variant"));
+        headers.add(createTableHeaderCell("Quantity"));
+        return headers.toArray(new PdfPCell[0]);
+    }
+
     private PdfPTable getPricingGroupTable(String tag) {
         tableTotalsMap.put(tag, new BoldTableTotals());
 
@@ -174,6 +198,17 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         titleCell.setColspan(getPricingTableHeaders().length);
         table.addCell(titleCell);
         addCellsToTable(table, getPricingTableHeaders());
+        return table;
+    }
+
+    private PdfPTable getProductBreakdownTable(String tag) {
+        PdfPCell[] productTableHeaders = getProductTableHeaders();
+        final PdfPTable table = createFullWidthTable(productTableHeaders.length);
+        table.setWidthPercentage(100f);
+        final PdfPCell titleCell = createTableHeaderCell(tag.toUpperCase() + " PRODUCT SUMMARY", ALIGN_CENTER);
+        titleCell.setColspan(getPricingTableHeaders().length);
+        table.addCell(titleCell);
+        addCellsToTable(table, productTableHeaders);
         return table;
     }
 
@@ -261,6 +296,16 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         return salesTotalExlTax;
     }
 
+    private void addProducts(PdfPTable table, Order order) {
+       for (LineItem lineItem : order.getLineItems()) {
+           addCellsToTable(table,
+                   createTableCell(lineItem.getSku()),
+                   createTableCell(lineItem.getTitle()),
+                   createTableCell(lineItem.getVariantTitle()),
+                   createTableCell(String.valueOf(lineItem.getQuantity()))
+           );
+       }
+    }
     private String calculateProfitMargin(BigDecimal salesAmount, BigDecimal profit) {
         final BigDecimal profitMargin = salesAmount.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO :
                 profit.divide(salesAmount, SCALE * SCALE, ROUNDING).multiply(ONE_HUNDRED).setScale(SCALE, BigDecimal.ROUND_HALF_UP);
