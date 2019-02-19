@@ -480,4 +480,24 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
             this.commissionTotal = this.commissionTotal.add(commission);
         }
     }
+
+    private class ProductSummary {
+
+        private String tag;
+        private Map<String, List<LineItem>> lineItemSummary = new HashMap<>(5);
+
+        ProductSummary(String tag) {
+            this.tag = tag;
+        }
+
+        public void addLineItems(List<LineItem> lineItems) {
+            for (LineItem lineItem : lineItems) {
+                List<LineItem> lineItemsForSku = lineItemSummary.get(lineItem.getSku());
+                if (lineItemsForSku == null) {
+                    lineItemsForSku = new ArrayList<>();
+                }
+                lineItemsForSku.add(lineItem);
+            }
+        }
+    }
 }
