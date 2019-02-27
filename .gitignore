@@ -24,3 +24,5 @@ hs_err_pid*
 shopify-updater/\.idea/
 
 shopify-updater/shopify-updater\.iml
+
+shopify-updater/target/

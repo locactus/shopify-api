@@ -39,6 +39,13 @@
             <version>5.0.6</version>
         </dependency>
 
+        <!-- POI -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+
         <!-- Test dependencies. -->
         <dependency>
             <groupId>org.hamcrest</groupId>

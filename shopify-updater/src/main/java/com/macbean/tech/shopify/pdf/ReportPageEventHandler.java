@@ -28,7 +28,7 @@ public class ReportPageEventHandler extends PdfPageEventHelper {
 
     public void onEndPage(PdfWriter writer, Document document) {
 
-        final Phrase leftHeader = new Phrase(ofPattern(AbstractShopifyReportGenerator.DATE_FORMAT).format(LocalDate.now()), FONT);
+        final Phrase leftHeader = new Phrase(ofPattern(AbstractShopifyReportPdfGenerator.DATE_FORMAT).format(LocalDate.now()), FONT);
         final Phrase header = new Phrase(reportName, FONT);
         final Phrase rightHeader = new Phrase(reportFrom + " to " + reportTo, FONT);
         final Phrase footer = new Phrase("Page " + writer.getPageNumber(), FONT);

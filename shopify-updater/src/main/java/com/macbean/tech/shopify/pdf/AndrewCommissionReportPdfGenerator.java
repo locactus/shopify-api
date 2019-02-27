@@ -5,7 +5,6 @@ import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
-import com.macbean.tech.shopify.ShopifyConstants;
 import com.macbean.tech.shopify.model.Order;
 import com.macbean.tech.shopify.model.Orders;
 
@@ -19,7 +18,7 @@ import static com.itextpdf.text.Element.*;
 import static com.macbean.tech.shopify.ShopifyConstants.*;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
-public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenerator {
+public class AndrewCommissionReportPdfGenerator extends AbstractShopifyReportPdfGenerator {
 
     private static final String NAME = "Andrew MacBean";
 
@@ -33,22 +32,22 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
     private BigDecimal totalCommissionDue = BigDecimal.ZERO;
 
     @Override
-    Rectangle getPageSize() {
+    protected Rectangle getPageSize() {
         return PageSize.A4;
     }
 
     @Override
-    String getTitle() {
+    protected String getTitle() {
         return "Sales Commission Invoice";
     }
 
     @Override
-    String getReferencePrefix() {
+    protected String getReferencePrefix() {
         return "EYE-MACB-";
     }
 
     @Override
-    void addHeader() throws DocumentException, IOException {
+    protected void addHeader() throws DocumentException, IOException {
         document.add(getEyeLogo(75f,75f, ALIGN_CENTER));
 
         final PdfPTable eyeRacketsInfoTable = new PdfPTable(1);
@@ -92,7 +91,7 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
     }
 
     @Override
-    void addContent() throws DocumentException, IOException {
+    protected void addContent() throws DocumentException, IOException {
         final Orders orders = shopifyClient.getAllOrders(from, to);
 
         final PdfPTable commissionBreakdownTable = createFullWidthTable(4,6,3,4,4,4,4,2,4);
@@ -185,7 +184,7 @@ public class AndrewCommissionReportGenerator extends AbstractShopifyReportGenera
     }
 
     @Override
-    void addFooter() throws DocumentException, IOException {
+    protected void addFooter() throws DocumentException, IOException {
         final PdfPTable miscDetailsTable = createFullWidthTable(3,1);
 
         final PdfPCell summaryCell = createTableHeaderCell("Payment Summary", ALIGN_CENTER);

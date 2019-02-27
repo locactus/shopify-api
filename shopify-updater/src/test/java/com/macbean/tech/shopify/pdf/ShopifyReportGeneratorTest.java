@@ -26,7 +26,7 @@ public class ShopifyReportGeneratorTest {
 
     @Test
     public void testGetAndrewCommissionFromPeriod() throws Exception {
-        final AndrewCommissionReportGenerator testInstance = new AndrewCommissionReportGenerator();
+        final AndrewCommissionReportPdfGenerator testInstance = new AndrewCommissionReportPdfGenerator();
 
         byte[] reportBytes = testInstance.generateReport(FROM, TO);
         assertNotNull(reportBytes);
@@ -39,7 +39,7 @@ public class ShopifyReportGeneratorTest {
 
     @Test
     public void testGetBoldBreakdownFromPeriod() throws Exception {
-        final BoldBreakdownReportGenerator testInstance = new BoldBreakdownReportGenerator();
+        final BoldBreakdownReportPdfGenerator testInstance = new BoldBreakdownReportPdfGenerator();
 
         byte[] reportBytes = testInstance.generateReport(FROM, TO);
         assertNotNull(reportBytes);
@@ -50,7 +50,7 @@ public class ShopifyReportGeneratorTest {
 
     @Test
     public void testCustomerSalesBreakdownFromPeriod() throws Exception {
-        final CustomerSalesReportGenerator testInstance = new CustomerSalesReportGenerator();
+        final CustomerSalesReportPdfGenerator testInstance = new CustomerSalesReportPdfGenerator();
 
         byte[] reportBytes = testInstance.generateReport(FROM, TO);
         assertNotNull(reportBytes);
@@ -61,7 +61,7 @@ public class ShopifyReportGeneratorTest {
 
     @Test
     public void testProductReport() throws Exception {
-        final ProductReportGenerator testInstance = new ProductReportGenerator();
+        final ProductReportPdfGenerator testInstance = new ProductReportPdfGenerator();
 
         byte[] reportBytes = testInstance.generateReport(FROM, TO);
         assertNotNull(reportBytes);

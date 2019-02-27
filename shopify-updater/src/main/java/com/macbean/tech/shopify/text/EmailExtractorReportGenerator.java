@@ -5,10 +5,9 @@ import com.macbean.tech.shopify.ShopifyConstants;
 import com.macbean.tech.shopify.ShopifyUtils;
 import com.macbean.tech.shopify.model.Customer;
 import com.macbean.tech.shopify.model.Customers;
-import com.macbean.tech.shopify.pdf.AbstractShopifyReportGenerator;
+import com.macbean.tech.shopify.pdf.AbstractShopifyReportPdfGenerator;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -42,7 +41,7 @@ public class EmailExtractorReportGenerator {
 
     public void writeTextToFile(String text) {
         final String filename = ShopifyConstants.OUTPUT_DIRECTORY + File.separatorChar +
-                DateTimeFormatter.ofPattern(AbstractShopifyReportGenerator.FILENAME_DATE_FORMAT).format(LocalDateTime.now()) + "-emails.txt";
+                DateTimeFormatter.ofPattern(AbstractShopifyReportPdfGenerator.FILENAME_DATE_FORMAT).format(LocalDateTime.now()) + "-emails.txt";
         try (FileWriter fileWriter = new FileWriter(filename)) {
             fileWriter.write(text);
         } catch (IOException ioe) {

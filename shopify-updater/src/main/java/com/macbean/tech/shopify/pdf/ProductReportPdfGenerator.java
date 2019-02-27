@@ -17,33 +17,33 @@ import static com.itextpdf.text.Element.ALIGN_CENTER;
 import static com.itextpdf.text.Element.ALIGN_RIGHT;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-public class ProductReportGenerator extends AbstractShopifyReportGenerator {
+public class ProductReportPdfGenerator extends AbstractShopifyReportPdfGenerator {
 
     private static final String DEFAULT_TITLE = "Default Title";
     private static final String NOT_APPLICABLE = "n/a";
 
     @Override
-    Rectangle getPageSize() {
+    protected Rectangle getPageSize() {
         return PageSize.A4;
     }
 
     @Override
-    String getTitle() {
+    protected String getTitle() {
         return "Eye UK & Ireland Products";
     }
 
     @Override
-    String getReferencePrefix() {
+    protected String getReferencePrefix() {
         return "EYE-PRODUCTS-";
     }
 
     @Override
-    void addHeader() throws DocumentException, IOException {
+    protected void addHeader() throws DocumentException, IOException {
         document.add(getEyeLogo(75f,75f, ALIGN_CENTER));
     }
 
     @Override
-    void addContent() throws DocumentException, IOException {
+    protected void addContent() throws DocumentException, IOException {
         final Map<String, List<Product>> productsByType = shopifyClient.getAllProductsByType();
 
         final Map<String, BigDecimal> inventoryIdCosts = shopifyClient.getAllCostsByInventoryId();
@@ -88,7 +88,7 @@ public class ProductReportGenerator extends AbstractShopifyReportGenerator {
     }
 
     @Override
-    void addFooter() throws DocumentException, IOException {
+    protected void addFooter() throws DocumentException, IOException {
 
     }
 }

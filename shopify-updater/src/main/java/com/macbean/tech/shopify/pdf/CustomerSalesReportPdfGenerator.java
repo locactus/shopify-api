@@ -19,33 +19,33 @@ import java.util.stream.Collectors;
 import static com.itextpdf.text.Element.ALIGN_CENTER;
 import static com.itextpdf.text.Element.ALIGN_RIGHT;
 
-public class CustomerSalesReportGenerator extends AbstractShopifyReportGenerator {
+public class CustomerSalesReportPdfGenerator extends AbstractShopifyReportPdfGenerator {
 
     private Map<String, BigDecimal> minSalesAmountByTag = new HashMap<>();
     private Map<String, Set<String>> underPerformingEmailAddressesByTag = new HashMap<>();
 
     @Override
-    Rectangle getPageSize() {
+    protected Rectangle getPageSize() {
         return PageSize.A4.rotate();
     }
 
     @Override
-    String getTitle() {
+    protected String getTitle() {
         return "Customer Sales Breakdown";
     }
 
     @Override
-    String getReferencePrefix() {
+    protected String getReferencePrefix() {
         return "EYE-CUST-SALES-";
     }
 
     @Override
-    void addHeader() throws DocumentException, IOException {
+    protected void addHeader() throws DocumentException, IOException {
         document.add(getEyeLogo(75f,75f, ALIGN_CENTER));
     }
 
     @Override
-    void addContent() throws DocumentException, IOException {
+    protected void addContent() throws DocumentException, IOException {
         final Customers customers = shopifyClient.getAllCustomers();
 
         final PdfPTable customersTable = createFullWidthTable(2,2,4,1,1,2,2,1);
@@ -104,7 +104,7 @@ public class CustomerSalesReportGenerator extends AbstractShopifyReportGenerator
     }
 
     @Override
-    void addFooter() throws DocumentException, IOException {
+    protected void addFooter() throws DocumentException, IOException {
         for (String tag : underPerformingEmailAddressesByTag.keySet()) {
             System.out.println(tag + " (" + minSalesAmountByTag.get(tag).toPlainString() + ")");
             String authorString = String.join(",", underPerformingEmailAddressesByTag.get(tag));

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 import static com.itextpdf.text.Element.*;
 
-public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator {
+public class BoldBreakdownReportPdfGenerator extends AbstractShopifyReportPdfGenerator {
 
     private static final double SHOPIFY_FEES = 225d;
     private static final double TRANSACTION_FEES = 467d;
@@ -37,27 +37,27 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
     private BoldTableTotals overallTotals = new BoldTableTotals();
 
     @Override
-    Rectangle getPageSize() {
+    protected Rectangle getPageSize() {
         return PageSize.A4.rotate();
     }
 
     @Override
-    String getTitle() {
+    protected String getTitle() {
         return "Bold Breakdown Sales Report";
     }
 
     @Override
-    String getReferencePrefix() {
+    protected String getReferencePrefix() {
         return "EYE-BOLD-";
     }
 
     @Override
-    void addHeader() throws DocumentException, IOException {
+    protected void addHeader() throws DocumentException, IOException {
         document.add(getEyeLogo(75f,75f, ALIGN_CENTER));
     }
 
     @Override
-    void addContent() throws DocumentException, IOException {
+    protected void addContent() throws DocumentException, IOException {
         allCostsByVariantId = shopifyClient.getAllCostsByVariantId();
 
         final Orders orders = shopifyClient.getAllOrders(from, to);
@@ -281,7 +281,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
         if (order.getShippingLines() != null && order.getShippingLines().size() > 0) {
             shipping = new BigDecimal(order.getShippingLines().get(0).getPrice());
         }
-        final BigDecimal orderCommission = AndrewCommissionReportGenerator.calculateCommission(salesTotalExlTax.subtract(shipping),
+        final BigDecimal orderCommission = AndrewCommissionReportPdfGenerator.calculateCommission(salesTotalExlTax.subtract(shipping),
                 order.getShippingAddress() != null ? order.getShippingAddress().getCountryCode() : ShopifyConstants.NO_COUNTRY_AVAILABLE);
         tableTotals.addCommission(orderCommission);
         table.addCell(createTableCell(orderCommission, ALIGN_RIGHT));
@@ -422,7 +422,7 @@ public class BoldBreakdownReportGenerator extends AbstractShopifyReportGenerator
     }
 
     @Override
-    void addFooter() throws DocumentException, IOException {
+    protected void addFooter() throws DocumentException, IOException {
         final PdfPTable summaryTable = getSummaryTable();
         document.add(summaryTable);
 
