@@ -222,7 +222,7 @@ public class AndrewCommissionReportPdfGenerator extends AbstractShopifyReportPdf
         miscDetailsTable.addCell(createTableCell(gSuiteFees, ALIGN_RIGHT));
 
         miscDetailsTable.addCell(createTableCell("MyHermes Collections/Deliveries", ALIGN_LEFT));
-        final BigDecimal myHermesCosts = new BigDecimal(3.99d + 4.49d + 10.13d + 3.99d);
+        final BigDecimal myHermesCosts = new BigDecimal(2.79d + 2.79d);
         miscDetailsTable.addCell(createTableCell(myHermesCosts, ALIGN_RIGHT));
 
         return gSuiteFees.add(myHermesCosts);
