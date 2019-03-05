@@ -175,7 +175,7 @@ public class BoldBreakdownReportPdfGenerator extends AbstractShopifyReportPdfGen
         headers.add(createTableHeaderCell("Item Costs"));
         headers.add(createTableHeaderCell("Commission"));
         headers.add(createTableHeaderCell("Profit Amount"));
-        headers.add(createTableHeaderCell("Profit %"));
+        headers.add(createTableHeaderCell("Margin"));
         return headers.toArray(new PdfPCell[0]);
     }
 
@@ -231,7 +231,7 @@ public class BoldBreakdownReportPdfGenerator extends AbstractShopifyReportPdfGen
         final PdfPCell profitCell = createTableCell(totals.getProfitTotal(), ALIGN_RIGHT);
         table.addCell(profitCell);
 
-        final PdfPCell profitMarginCell = createTableCell(calculateProfitMargin(totals.getSalesTotal(), totals.getProfitTotal()), ALIGN_RIGHT);
+        final PdfPCell profitMarginCell = createTableCell(calculateDaansMargin(totals.getSalesTotal(), totals.getCommissionTotal(), totals.getCostTotal()), ALIGN_RIGHT);
         table.addCell(profitMarginCell);
     }
 
@@ -290,7 +290,7 @@ public class BoldBreakdownReportPdfGenerator extends AbstractShopifyReportPdfGen
         tableTotals.addProfit(totalOrderProfit);
         table.addCell(createTableCell(totalOrderProfit, ALIGN_RIGHT));
 
-        table.addCell(createTableCell(calculateProfitMargin(salesTotalExlTax, totalOrderProfit), ALIGN_RIGHT));
+        table.addCell(createTableCell(calculateDaansMargin(salesTotalExlTax, orderCommission, totalOrderCost), ALIGN_RIGHT));
 
         return salesTotalExlTax;
     }
@@ -314,6 +314,12 @@ public class BoldBreakdownReportPdfGenerator extends AbstractShopifyReportPdfGen
         return salesAmount.compareTo(BigDecimal.ZERO) <= 0 ? "N/A" : profitMargin.toPlainString()+"%";
     }
 
+    private String calculateDaansMargin(BigDecimal salesAmount, BigDecimal commission, BigDecimal costPrice) {
+        final BigDecimal salesAmountMinusCommission = salesAmount.subtract(commission);
+        final BigDecimal daansProfitMargin = costPrice.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : salesAmountMinusCommission.divide(costPrice, SCALE * SCALE, ROUNDING).multiply(ONE_HUNDRED).setScale(SCALE, BigDecimal.ROUND_HALF_UP);
+        return salesAmountMinusCommission.compareTo(BigDecimal.ZERO) <= 0 ? "N/A" : daansProfitMargin.toPlainString()+"%";
+    }
+
     private PdfPCell[] getSummaryTableHeaders() {
         final List<PdfPCell> headers = new ArrayList<>();
         headers.add(createTableHeaderCell("Sales Group"));
@@ -322,7 +328,7 @@ public class BoldBreakdownReportPdfGenerator extends AbstractShopifyReportPdfGen
         headers.add(createTableHeaderCell("Total Cost"));
         headers.add(createTableHeaderCell("Total Commission"));
         headers.add(createTableHeaderCell("Total Profit"));
-        headers.add(createTableHeaderCell("Total Profit Margin"));
+        headers.add(createTableHeaderCell("Total Margin"));
         return headers.toArray(new PdfPCell[0]);
     }
 
@@ -346,7 +352,7 @@ public class BoldBreakdownReportPdfGenerator extends AbstractShopifyReportPdfGen
         overallTotals.addProfit(tableTotals.getProfitTotal());
         summaryCells.add(createTableCell(tableTotals.getProfitTotal(), ALIGN_RIGHT));
 
-        summaryCells.add(createTableCell(calculateProfitMargin(tableTotals.getSalesTotal(), tableTotals.getProfitTotal()), ALIGN_RIGHT));
+        summaryCells.add(createTableCell(calculateDaansMargin(tableTotals.getSalesTotal(), tableTotals.getCommissionTotal(), tableTotals.getCostTotal()), ALIGN_RIGHT));
 
         return summaryCells.toArray(new PdfPCell[0]);
     }
@@ -379,7 +385,7 @@ public class BoldBreakdownReportPdfGenerator extends AbstractShopifyReportPdfGen
         addCellsToTable(table, createTableCell(overallTotals.getCostTotal(), ALIGN_RIGHT));
         addCellsToTable(table, createTableCell(overallTotals.getCommissionTotal(), ALIGN_RIGHT));
         addCellsToTable(table, createTableCell(overallTotals.getProfitTotal(), ALIGN_RIGHT));
-        addCellsToTable(table, createTableCell(calculateProfitMargin(overallTotals.getSalesTotal(), overallTotals.getProfitTotal()), ALIGN_RIGHT));
+        addCellsToTable(table, createTableCell(calculateDaansMargin(overallTotals.getSalesTotal(), overallTotals.getCommissionTotal(), overallTotals.getCostTotal()), ALIGN_RIGHT));
         return table;
     }
 
