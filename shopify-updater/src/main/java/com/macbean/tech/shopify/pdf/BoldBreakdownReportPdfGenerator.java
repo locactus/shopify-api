@@ -79,6 +79,7 @@ public class BoldBreakdownReportPdfGenerator extends AbstractShopifyReportPdfGen
         final ProductSummary freeProductSummary = new ProductSummary(ShopifyConstants.FREE_TAG);
         final ProductSummary staffProductSummary = new ProductSummary(ShopifyConstants.STAFF_TAG);
         final ProductSummary replacementProductSummary = new ProductSummary(ShopifyConstants.REPLACEMENTS_TAG);
+        final ProductSummary sponsorshipProductSummary = new ProductSummary(ShopifyConstants.SPONSORSHIP_TAG);
 
         for (Order order : orders.getOrders()) {
             if (order.getShippingAddress() == null) {
@@ -104,12 +105,13 @@ public class BoldBreakdownReportPdfGenerator extends AbstractShopifyReportPdfGen
             else if (order.getTags().contains(ShopifyConstants.DEMOS_TAG)) {
                 addOrderToTable(ShopifyConstants.DEMOS_TAG, demosTable, order);
             }
-            else if (order.getTags().contains(ShopifyConstants.SPONSORSHIP_TAG)) {
-                addOrderToTable(ShopifyConstants.SPONSORSHIP_TAG, sponsorshipTable, order);
-            }
             else if ("0.00".equals(order.getTotalPrice())) {
                 addOrderToTable(ShopifyConstants.FREE_TAG, freeTable, order);
                 freeProductSummary.addLineItems(order.getLineItems());
+            }
+            else if (order.getTags().contains(ShopifyConstants.SPONSORSHIP_TAG)) {
+                addOrderToTable(ShopifyConstants.SPONSORSHIP_TAG, sponsorshipTable, order);
+                sponsorshipProductSummary.addLineItems(order.getLineItems());
             }
             else if (order.getCustomer().getTags().contains(ShopifyConstants.TRADE_TAG)) {
                 addOrderToTable(ShopifyConstants.TRADE_TAG, tradeTable, order);
@@ -138,7 +140,7 @@ public class BoldBreakdownReportPdfGenerator extends AbstractShopifyReportPdfGen
         addTotalRowAndDisplay(ShopifyConstants.DIGITAL_TAG, digitalTable);
         addTotalRowAndDisplay(ShopifyConstants.FREE_TAG, freeTable, freeProductSummary);
         addTotalRowAndDisplay(ShopifyConstants.STAFF_TAG, staffTable, staffProductSummary);
-        addTotalRowAndDisplay(ShopifyConstants.SPONSORSHIP_TAG, sponsorshipTable);
+        addTotalRowAndDisplay(ShopifyConstants.SPONSORSHIP_TAG, sponsorshipTable, sponsorshipProductSummary);
         addTotalRowAndDisplay(ShopifyConstants.REPLACEMENTS_TAG, replacementTable, replacementProductSummary);
         addTotalRowAndDisplay(ShopifyConstants.RETURN_TAG, returnsTable);
     }
